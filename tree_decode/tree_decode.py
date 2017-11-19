@@ -5,7 +5,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import normalize
 
 
-def get_tree_info(estimator):
+def get_tree_info(estimator, names=None):
     """
     Print out the structure of a decision tree.
 
@@ -17,6 +17,12 @@ def get_tree_info(estimator):
     ----------
     estimator : sklearn.tree.DecisionTreeClassifier
         The decision tree that we are to analyze.
+    names : dict, default None
+        A mapping from feature indices to string names. By default, when we
+        display the non-leaf node forks, we write "go left if feature {i}
+        <= {cutoff}," where "i" is an integer. If names are provided, we will
+        map "i" to a particular string name and write instead, "go left if
+        {feature-name} <= {cutoff}."
 
     Raises
     ------
@@ -29,6 +35,8 @@ def get_tree_info(estimator):
         raise NotImplementedError("get_tree_info is only implemented for "
                                   "DecisionTreeClassifier. Support for "
                                   "other trees is forthcoming.")
+
+    names = names or {}
 
     check_is_fitted(estimator, "tree_")
     tree = estimator.tree_
@@ -85,12 +93,17 @@ def get_tree_info(estimator):
                 previous_leaf = False
                 print("")  # Readability
 
+            feature = features[i]
+            cutoff = "%.2f" % thresholds[i]
+
+            default = "feature {name}".format(name=feature)
+            name = names.get(feature, default)
+
             node_info = ("{tabbing}node={label}: go to node {left} if "
-                         "feature {name} <= {cutoff} else to node {right}.")
+                         "{name} <= {cutoff} else to node {right}.")
             print(node_info.format(tabbing=tabbing, label=i,
                                    left=children_left[i],
-                                   name=features[i],
-                                   cutoff="%.2f" % thresholds[i],
+                                   name=name, cutoff=cutoff,
                                    right=children_right[i]))
 
 
@@ -107,6 +120,11 @@ def demo():
 
     estimator.fit(x_train, y_train)
     get_tree_info(estimator)
+    print("")
+
+    names = {0: "Sepal Length", 1: "Sepal Width",
+             2: "Petal Length", 3: "Petal Width"}
+    get_tree_info(estimator, names=names)
 
 
 if __name__ == "__main__":
