@@ -1,6 +1,7 @@
 import numpy as np
 
 from sklearn.utils.validation import check_is_fitted
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import normalize
 
 
@@ -15,7 +16,19 @@ def get_tree_info(estimator):
     Parameters
     ----------
     estimator : sklearn.tree.DecisionTreeClassifier
+        The decision tree that we are to analyze.
+
+    Raises
+    ------
+    NotImplementedError : the estimator was not a DecisionTreeClassifier.
+                          Note that this restriction is temporary. Support
+                          for other trees is forthcoming.
     """
+
+    if not isinstance(estimator, DecisionTreeClassifier):
+        raise NotImplementedError("get_tree_info is only implemented for "
+                                  "DecisionTreeClassifier. Support for "
+                                  "other trees is forthcoming.")
 
     check_is_fitted(estimator, "tree_")
     tree = estimator.tree_
@@ -36,6 +49,7 @@ def get_tree_info(estimator):
         node_id, parent_depth = stack.pop()
         node_depths[node_id] = parent_depth + 1
 
+        # Check if we are at a leaf or not.
         if children_left[node_id] != children_right[node_id]:
             stack.append((children_left[node_id], parent_depth + 1))
             stack.append((children_right[node_id], parent_depth + 1))
@@ -82,7 +96,6 @@ def get_tree_info(estimator):
 
 def demo():
     from sklearn.model_selection import train_test_split
-    from sklearn.tree import DecisionTreeClassifier
     from sklearn.datasets import load_iris
 
     iris = load_iris()
