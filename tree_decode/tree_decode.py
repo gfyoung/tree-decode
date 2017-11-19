@@ -5,7 +5,7 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn.tree import DecisionTreeClassifier
 
 
-def get_tree_info(estimator, normalize=True, names=None):
+def get_tree_info(estimator, normalize=True, precision=3, names=None):
     """
     Print out the structure of a decision tree.
 
@@ -20,6 +20,9 @@ def get_tree_info(estimator, normalize=True, names=None):
     normalize : bool, default True
         Whether to normalize the label scores at the leaves so that they
         fall into the range [0, 1].
+    precision : int or None, default 3
+        The decimal precision with which we display our cutoffs and leaf
+        scores. If None is passed in, no rounding is performed.
     names : dict, default None
         A mapping from feature indices to string names. By default, when we
         display the non-leaf node forks, we write "go left if feature {i}
@@ -87,10 +90,11 @@ def get_tree_info(estimator, normalize=True, names=None):
             if normalize:
                 probs = normalize_values(probs, norm="l1")
 
-            probs = probs.round(3)
+            if precision is not None:
+                probs = probs.round(3)
 
-            leaf_info = "{tabbing}node={label} left node: scores = {score}"
-            print(leaf_info.format(tabbing=tabbing, label=i, score=probs))
+            leaf_info = "{tabbing}node={label} left node: scores = {scores}"
+            print(leaf_info.format(tabbing=tabbing, label=i, scores=probs))
 
             previous_depth = node_depth
             previous_leaf = True
@@ -100,7 +104,9 @@ def get_tree_info(estimator, normalize=True, names=None):
                 print("")  # Readability
 
             feature = features[i]
-            cutoff = "%.2f" % thresholds[i]
+            threshold = thresholds[i]
+            cutoff = (threshold if precision is None
+                      else round(threshold, precision))
 
             default = "feature {name}".format(name=feature)
             name = names.get(feature, default)
@@ -131,6 +137,9 @@ def demo():
     names = {0: "Sepal Length", 1: "Sepal Width",
              2: "Petal Length", 3: "Petal Width"}
     get_tree_info(estimator, names=names)
+    print("")
+
+    get_tree_info(estimator, precision=None)
     print("")
 
     get_tree_info(estimator, normalize=False)
