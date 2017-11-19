@@ -1,11 +1,11 @@
 import numpy as np
 
+from sklearn.preprocessing import normalize as normalize_values
 from sklearn.utils.validation import check_is_fitted
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.preprocessing import normalize
 
 
-def get_tree_info(estimator, names=None):
+def get_tree_info(estimator, normalize=True, names=None):
     """
     Print out the structure of a decision tree.
 
@@ -17,6 +17,9 @@ def get_tree_info(estimator, names=None):
     ----------
     estimator : sklearn.tree.DecisionTreeClassifier
         The decision tree that we are to analyze.
+    normalize : bool, default True
+        Whether to normalize the label scores at the leaves so that they
+        fall into the range [0, 1].
     names : dict, default None
         A mapping from feature indices to string names. By default, when we
         display the non-leaf node forks, we write "go left if feature {i}
@@ -79,8 +82,11 @@ def get_tree_info(estimator, names=None):
                     print("")  # Readability
 
             probs = tree.value[i][0]
-            probs = normalize(np.atleast_2d(probs),
-                              norm="l1")
+            probs = np.atleast_2d(probs)
+
+            if normalize:
+                probs = normalize_values(probs, norm="l1")
+
             probs = probs.round(3)
 
             leaf_info = "{tabbing}node={label} left node: scores = {score}"
@@ -125,6 +131,10 @@ def demo():
     names = {0: "Sepal Length", 1: "Sepal Width",
              2: "Petal Length", 3: "Petal Width"}
     get_tree_info(estimator, names=names)
+    print("")
+
+    get_tree_info(estimator, normalize=False)
+    print("")
 
 
 if __name__ == "__main__":
