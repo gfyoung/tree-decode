@@ -5,15 +5,27 @@ from sklearn.preprocessing import normalize
 
 
 def get_tree_info(estimator):
+    """
+    Print out the structure of a decision tree.
+
+    The print-out will consist of each node and either its leaf-node
+    scores OR its decision threshold to determine which path it takes
+    subsequently from the fork.
+
+    Parameters
+    ----------
+    estimator : sklearn.tree.DecisionTreeClassifier
+    """
+
     check_is_fitted(estimator, "tree_")
     tree = estimator.tree_
 
-    n_nodes = estimator.tree_.node_count
-    children_left = estimator.tree_.children_left
-    children_right = estimator.tree_.children_right
+    n_nodes = tree.node_count
+    children_left = tree.children_left
+    children_right = tree.children_right
 
-    feature = estimator.tree_.feature
-    threshold = estimator.tree_.threshold
+    features = tree.feature
+    thresholds = tree.threshold
 
     node_depths = np.zeros(shape=n_nodes, dtype=np.int64)
     is_leaves = np.zeros(shape=n_nodes, dtype=bool)
@@ -63,8 +75,8 @@ def get_tree_info(estimator):
                          "feature {name} <= {cutoff} else to node {right}.")
             print(node_info.format(tabbing=tabbing, label=i,
                                    left=children_left[i],
-                                   name=feature[i],
-                                   cutoff="%.2f" % threshold[i],
+                                   name=features[i],
+                                   cutoff="%.2f" % thresholds[i],
                                    right=children_right[i]))
 
 
