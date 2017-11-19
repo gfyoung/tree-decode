@@ -5,7 +5,8 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn.tree import DecisionTreeClassifier
 
 
-def get_tree_info(estimator, normalize=True, precision=3, names=None):
+def get_tree_info(estimator, normalize=True, precision=3, names=None,
+                  label_index=None):
     """
     Print out the structure of a decision tree.
 
@@ -29,12 +30,19 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None):
         <= {cutoff}," where "i" is an integer. If names are provided, we will
         map "i" to a particular string name and write instead, "go left if
         {feature-name} <= {cutoff}."
+    label_index : int, default None
+        Whether we want to display the leaf score for a particular label (i.e.
+        classification). If an integer is provided, we will index into the
+        scores array at each leaf and only display that score. Otherwise, the
+        entire scores array will be displayed. Note that labels are 0-indexed.
 
     Raises
     ------
     NotImplementedError : the estimator was not a DecisionTreeClassifier.
                           Note that this restriction is temporary. Support
                           for other trees is forthcoming.
+    IndexError : the label index provided was out of bounds on the array of
+                 label scores provided at each node.
     """
 
     if not isinstance(estimator, DecisionTreeClassifier):
@@ -84,17 +92,30 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None):
                 if previous_depth > 0 and previous_depth > node_depth:
                     print("")  # Readability
 
-            probs = tree.value[i][0]
-            probs = np.atleast_2d(probs)
+            probs = tree.value[i][:]
 
             if normalize:
                 probs = normalize_values(probs, norm="l1")
 
             if precision is not None:
-                probs = probs.round(3)
+                probs = probs.round(precision)
 
-            leaf_info = "{tabbing}node={label} left node: scores = {scores}"
-            print(leaf_info.format(tabbing=tabbing, label=i, scores=probs))
+            if label_index is not None:
+                try:
+                    prob = probs[0][label_index]
+                    score = "score = {score}".format(score=prob)
+                except IndexError:
+                    msg = ("Index {label_index} is out of bounds on a "
+                           "decision tree with {n} possible labels")
+                    prob_counts = probs.shape[1]
+
+                    raise IndexError(msg.format(n=prob_counts,
+                                                label_index=label_index))
+            else:
+                score = "scores = {scores}".format(scores=probs)
+
+            leaf_info = "{tabbing}node={label} left node: {score}"
+            print(leaf_info.format(tabbing=tabbing, label=i, score=score))
 
             previous_depth = node_depth
             previous_leaf = True
@@ -143,6 +164,9 @@ def demo():
     print("")
 
     get_tree_info(estimator, normalize=False)
+    print("")
+
+    get_tree_info(estimator, label_index=2)
     print("")
 
 
