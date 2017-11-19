@@ -1,0 +1,13 @@
+# MacOS files
+.DS_Store
+
+# IntelliJ files
+.idea
+*.iml
+
+# Python files
+*.egg-info
+.cache
+build/
+*.pyc
+dist
