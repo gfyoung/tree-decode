@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/gfyoung/tree-decode.svg?branch=master)](https://travis-ci.org/gfyoung/tree-decode)
+
 # tree-decode
 
 Package for removing the black-box around decision trees.

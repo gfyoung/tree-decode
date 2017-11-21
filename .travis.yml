@@ -1,0 +1,16 @@
+notifications:
+  email: false
+
+language: python
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+install:
+  - pip install flake8
+
+script:
+  - flake8
