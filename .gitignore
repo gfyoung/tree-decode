@@ -9,5 +9,6 @@
 *.egg-info
 .cache
 build/
+.eggs/
 *.pyc
 dist

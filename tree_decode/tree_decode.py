@@ -4,6 +4,8 @@ from sklearn.preprocessing import normalize as normalize_values
 from sklearn.utils.validation import check_is_fitted
 from sklearn.tree import DecisionTreeClassifier
 
+__all__ = ["get_tree_info", "get_decision_info"]
+
 
 def get_tree_info(estimator, normalize=True, precision=3, names=None,
                   label_index=None):
