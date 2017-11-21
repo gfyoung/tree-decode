@@ -140,6 +140,73 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
                                    right=children_right[i]))
 
 
+def get_decision_info(estimator, data, precision=3):
+    """
+    Get the decision process for a tree on a piece of data.
+
+    Parameters
+    ----------
+    estimator : sklearn.tree.DecisionTreeClassifier
+        The decision tree that we are to analyze.
+    data : np.ndarray
+        A 2-D array compromising ONE piece of input data.
+    precision : int or None, default 3
+        The decimal precision with which we display our cutoffs and leaf
+        scores. If None is passed in, no rounding is performed.
+
+    Raises
+    ------
+    NotImplementedError : the estimator was not a DecisionTreeClassifier.
+                          Note that this restriction is temporary. Support
+                          for other trees is forthcoming.
+    """
+
+    if not isinstance(estimator, DecisionTreeClassifier):
+        raise NotImplementedError("get_tree_info is only implemented for "
+                                  "DecisionTreeClassifier. Support for "
+                                  "other trees is forthcoming.")
+
+    node_indicator = estimator.decision_path(data)
+    node_index = node_indicator.indices[node_indicator.indptr[0]:
+                                        node_indicator.indptr[1]]
+
+    probs = estimator.predict_proba(data)[0]
+    probs = probs.round(precision) if precision is not None else probs
+
+    tree = estimator.tree_
+    features = tree.feature
+    thresholds = tree.threshold
+
+    output = "Decision Path for Tree:\n"
+    leaf_id = estimator.apply(data)
+
+    for node_id in node_index:
+        if leaf_id[0] != node_id:
+            feature = features[node_id]
+
+            if data[0, feature] <= thresholds[node_id]:
+                threshold_sign = "<="
+            else:
+                threshold_sign = ">"
+
+            feature_score = data[0, feature]
+            feature_threshold = thresholds[node_id]
+
+            if precision is not None:
+                feature_score = round(feature_score, precision)
+                feature_threshold = round(feature_threshold, precision)
+
+            output += ("    Decision ID Node {node_id} : Feature {name} "
+                       "Score = {score} {sign} {threshold}\n".format(
+                        node_id=node_id, score=feature_score, name=feature,
+                        sign=threshold_sign, threshold=feature_threshold))
+        else:
+            output += ("    Decision ID Node {node_id} : "
+                       "Scores = {scores}".format(node_id=node_id,
+                                                  scores=probs))
+    print(output)
+
+
 def demo():
     from sklearn.model_selection import train_test_split
     from sklearn.datasets import load_iris
@@ -168,6 +235,13 @@ def demo():
 
     get_tree_info(estimator, label_index=2)
     print("")
+
+    for index in range(5):
+        data = x_test[[index]]
+        print("Analyzing: " + str(data) + "\n")
+
+        get_decision_info(estimator, data)
+        print("")
 
 
 if __name__ == "__main__":
