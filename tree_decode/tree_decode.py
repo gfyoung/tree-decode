@@ -140,7 +140,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
                                    right=children_right[i]))
 
 
-def get_decision_info(estimator, data, precision=3):
+def get_decision_info(estimator, data, precision=3, names=None):
     """
     Get the decision process for a tree on a piece of data.
 
@@ -153,6 +153,12 @@ def get_decision_info(estimator, data, precision=3):
     precision : int or None, default 3
         The decimal precision with which we display our cutoffs and leaf
         scores. If None is passed in, no rounding is performed.
+    names : dict, default None
+        A mapping from feature indices to string names. By default, when we
+        display the non-leaf node forks, we write something liek "Feature {i}
+        Score <= {cutoff}," where "i" is an integer. If names are provided,
+        we will map "i" to a particular string name and write instead,
+        "{feature-name} <= {cutoff}."
 
     Raises
     ------
@@ -165,6 +171,9 @@ def get_decision_info(estimator, data, precision=3):
         raise NotImplementedError("get_tree_info is only implemented for "
                                   "DecisionTreeClassifier. Support for "
                                   "other trees is forthcoming.")
+
+    names = names or {}
+    check_is_fitted(estimator, "tree_")
 
     node_indicator = estimator.decision_path(data)
     node_index = node_indicator.indices[node_indicator.indptr[0]:
@@ -183,22 +192,24 @@ def get_decision_info(estimator, data, precision=3):
     for node_id in node_index:
         if leaf_id[0] != node_id:
             feature = features[node_id]
+            feature_score = data[0, feature]
+            feature_threshold = thresholds[node_id]
 
-            if data[0, feature] <= thresholds[node_id]:
+            default = "Feature {name} Score".format(name=feature)
+            name = names.get(feature, default)
+
+            if feature_score <= thresholds[node_id]:
                 threshold_sign = "<="
             else:
                 threshold_sign = ">"
-
-            feature_score = data[0, feature]
-            feature_threshold = thresholds[node_id]
 
             if precision is not None:
                 feature_score = round(feature_score, precision)
                 feature_threshold = round(feature_threshold, precision)
 
-            output += ("    Decision ID Node {node_id} : Feature {name} "
-                       "Score = {score} {sign} {threshold}\n".format(
-                        node_id=node_id, score=feature_score, name=feature,
+            output += ("    Decision ID Node {node_id} : {name} = "
+                       "{score} {sign} {threshold}\n".format(
+                        node_id=node_id, score=feature_score, name=name,
                         sign=threshold_sign, threshold=feature_threshold))
         else:
             output += ("    Decision ID Node {node_id} : "
@@ -236,12 +247,26 @@ def demo():
     get_tree_info(estimator, label_index=2)
     print("")
 
-    for index in range(5):
-        data = x_test[[index]]
-        print("Analyzing: " + str(data) + "\n")
+    index = 1
+    data = x_test[[index]]
+    print("Analyzing: " + str(data) + "\n")
 
-        get_decision_info(estimator, data)
-        print("")
+    get_decision_info(estimator, data)
+    print("")
+
+    index = 2
+    data = x_test[[index]]
+    print("Analyzing: " + str(data) + "\n")
+
+    get_decision_info(estimator, data, precision=None)
+    print("")
+
+    index = 3
+    data = x_test[[index]]
+    print("Analyzing: " + str(data) + "\n")
+
+    get_decision_info(estimator, data, names=names)
+    print("")
 
 
 if __name__ == "__main__":
