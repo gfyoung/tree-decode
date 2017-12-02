@@ -1,8 +1,9 @@
-import numpy as np
-
 from sklearn.preprocessing import normalize as normalize_values
 from sklearn.utils.validation import check_is_fitted
 from sklearn.tree import DecisionTreeClassifier
+
+import tree_decode.utils as utils
+import numpy as np
 
 __all__ = ["get_tree_info", "get_decision_info"]
 
@@ -47,14 +48,10 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
                  label scores provided at each node.
     """
 
-    if not isinstance(estimator, DecisionTreeClassifier):
-        raise NotImplementedError("get_tree_info is only implemented for "
-                                  "DecisionTreeClassifier. Support for "
-                                  "other trees is forthcoming.")
+    utils.check_estimator_type(estimator)
+    check_is_fitted(estimator, "tree_")
 
     names = names or {}
-
-    check_is_fitted(estimator, "tree_")
     tree = estimator.tree_
 
     n_nodes = tree.node_count
@@ -99,8 +96,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
             if normalize:
                 probs = normalize_values(probs, norm="l1")
 
-            if precision is not None:
-                probs = probs.round(precision)
+            probs = utils.maybe_round(probs, precision=precision)
 
             if label_index is not None:
                 try:
@@ -128,8 +124,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
 
             feature = features[i]
             threshold = thresholds[i]
-            cutoff = (threshold if precision is None
-                      else round(threshold, precision))
+            cutoff = utils.maybe_round(threshold, precision=precision)
 
             default = "feature {name}".format(name=feature)
             name = names.get(feature, default)
@@ -169,20 +164,16 @@ def get_decision_info(estimator, data, precision=3, names=None):
                           for other trees is forthcoming.
     """
 
-    if not isinstance(estimator, DecisionTreeClassifier):
-        raise NotImplementedError("get_tree_info is only implemented for "
-                                  "DecisionTreeClassifier. Support for "
-                                  "other trees is forthcoming.")
-
-    names = names or {}
+    utils.check_estimator_type(estimator)
     check_is_fitted(estimator, "tree_")
 
+    names = names or {}
     node_indicator = estimator.decision_path(data)
     node_index = node_indicator.indices[node_indicator.indptr[0]:
                                         node_indicator.indptr[1]]
 
     probs = estimator.predict_proba(data)[0]
-    probs = probs.round(precision) if precision is not None else probs
+    probs = utils.maybe_round(probs, precision=precision)
 
     tree = estimator.tree_
     features = tree.feature
@@ -205,9 +196,10 @@ def get_decision_info(estimator, data, precision=3, names=None):
             else:
                 threshold_sign = ">"
 
-            if precision is not None:
-                feature_score = round(feature_score, precision)
-                feature_threshold = round(feature_threshold, precision)
+            feature_score = utils.maybe_round(feature_score,
+                                              precision=precision)
+            feature_threshold = utils.maybe_round(feature_threshold,
+                                                  precision=precision)
 
             output += ("    Decision ID Node {node_id} : {name} = "
                        "{score} {sign} {threshold}\n".format(
