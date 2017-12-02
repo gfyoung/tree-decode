@@ -1,14 +1,14 @@
 from sklearn.tree import DecisionTreeClassifier
+from tree_decode.tests import PY3
 
 import tree_decode.utils as utils
 import numpy as np
 import pytest
-import sys
 
-if sys.version_info < (3, 0, 0):
-    import __builtin__ as builtins
-else:
+if PY3:
     import builtins
+else:
+    import __builtin__ as builtins
 
 
 def test_check_estimator_type():
