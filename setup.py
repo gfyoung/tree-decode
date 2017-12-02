@@ -18,6 +18,7 @@ setup(
     version=decode_version,
     packages=["tree_decode",
               "tree_decode.tests"],
+    package_data={"tree_decode.tests": ["models/*.pickle"]},
     include_package_data=True,
     license="MIT License",
     description=SHORT_DESCRIPTION,
