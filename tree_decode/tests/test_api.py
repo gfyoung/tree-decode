@@ -158,7 +158,65 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 class TestGetDecisionInfo(BaseApiTest):
 
     min_args = (np.array([]),)
+    data = np.array([[5.8, 2.8, 5.1, 2.4]])
 
     @staticmethod
     def api_call(*args, **kwargs):
         return api.get_decision_info(*args, **kwargs)
+
+    def test_basic(self):
+        result = self.api_call(self.model, self.data)
+        expected = """\
+Decision Path for Tree:
+     Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
+     Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
+     Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
+"""
+        assert result == expected
+
+    def test_precision(self):
+        precision = 2
+        result = self.api_call(self.model, self.data, precision=precision)
+
+        expected = """\
+Decision Path for Tree:
+     Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
+     Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
+     Decision ID Node 4 : Scores = [ 0.    0.03  0.97]
+"""
+        assert result == expected
+
+    def test_names(self):
+        names = {0: "Sepal Length", 1: "Sepal Width",
+                 2: "Petal Length", 3: "Petal Width"}
+        result = self.api_call(self.model, self.data, names=names)
+        expected = """\
+Decision Path for Tree:
+     Decision ID Node 0 : Petal Width = 2.4 > 0.8
+     Decision ID Node 2 : Petal Length = 5.1 > 4.95
+     Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
+"""
+        assert result == expected
+
+    def test_tab_size(self):
+        tab_size = 0
+        result = self.api_call(self.model, self.data, tab_size=tab_size)
+
+        expected = """\
+Decision Path for Tree:
+Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
+Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
+Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
+"""
+        assert result == expected
+
+        tab_size = 2
+        result = self.api_call(self.model, self.data, tab_size=tab_size)
+
+        expected = """\
+Decision Path for Tree:
+  Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
+  Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
+  Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
+"""
+        assert result == expected

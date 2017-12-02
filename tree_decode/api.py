@@ -238,8 +238,8 @@ def get_decision_info(estimator, data, precision=3, names=None,
                         sign=threshold_sign, threshold=feature_threshold))
         else:
             output += ("Decision ID Node {node_id} : "
-                       "Scores = {scores}".format(node_id=node_id,
-                                                  scores=probs))
+                       "Scores = {scores}\n".format(node_id=node_id,
+                                                    scores=probs))
 
     utils.write_to_buf(output, filepath_or_buffer)
     return output if filepath_or_buffer is None else None
@@ -259,45 +259,30 @@ def demo():
 
     estimator.fit(x_train, y_train)
     print(get_tree_info(estimator))
-    print("")
 
     names = {0: "Sepal Length", 1: "Sepal Width",
              2: "Petal Length", 3: "Petal Width"}
     print(get_tree_info(estimator, names=names))
-    print("")
 
     print(get_tree_info(estimator, precision=None))
-    print("")
-
     print(get_tree_info(estimator, normalize=False))
-    print("")
-
     print(get_tree_info(estimator, label_index=2))
-    print("")
-
     print(get_tree_info(estimator, tab_size=2))
-    print("")
 
     index = 1
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
-
     print(get_decision_info(estimator, data))
-    print("")
 
     index = 2
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
-
     print(get_decision_info(estimator, data, precision=None))
-    print("")
 
     index = 3
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
-
     print(get_decision_info(estimator, data, names=names))
-    print("")
 
     print(get_decision_info(estimator, data, tab_size=2))
     print("")
