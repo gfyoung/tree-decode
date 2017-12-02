@@ -18,8 +18,9 @@ class BaseApiTest(object):
 
     @staticmethod
     def load_model(filename):
-        directory = os.path.dirname(os.path.abspath(__file__))
+        directory = os.path.dirname(__file__)
         directory = os.path.join(directory, "models")
+
         filename = os.path.join(directory, filename)
         return load_model(filename)
 
