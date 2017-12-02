@@ -1,6 +1,6 @@
+from tree_decode.tests.utils import load_model, MockBuffer
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.exceptions import NotFittedError
-from tree_decode.tests.utils import load_model
 
 import tree_decode.api as api
 import numpy as np
@@ -154,6 +154,23 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 """
         assert result == expected
 
+    def test_buffer(self):
+        buffer = MockBuffer()
+        result = self.api_call(self.model, filepath_or_buffer=buffer)
+
+        expected = """\
+node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
+     node=1 left node: scores = [[ 1.  0.  0.]]
+
+     node=2: go to node 3 if feature 2 <= 4.95 else to node 4.
+          node=3 left node: scores = [[ 0.     0.917  0.083]]
+          node=4 left node: scores = [[ 0.     0.026  0.974]]
+"""
+        # We wrote to a buffer, so the result
+        # is not returned to the user.
+        assert result is None
+        assert buffer.read() == expected
+
 
 class TestGetDecisionInfo(BaseApiTest):
 
@@ -220,3 +237,19 @@ Decision Path for Tree:
   Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
 """
         assert result == expected
+
+    def test_buffer(self):
+        buffer = MockBuffer()
+        result = self.api_call(self.model, self.data,
+                               filepath_or_buffer=buffer)
+
+        expected = """\
+Decision Path for Tree:
+     Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
+     Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
+     Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
+"""
+        # We wrote to a buffer, so the result
+        # is not returned to the user.
+        assert result is None
+        assert buffer.read() == expected
