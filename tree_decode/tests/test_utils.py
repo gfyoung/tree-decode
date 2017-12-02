@@ -3,6 +3,12 @@ from sklearn.tree import DecisionTreeClassifier
 import tree_decode.utils as utils
 import numpy as np
 import pytest
+import sys
+
+if sys.version_info < (3, 0, 0):
+    import __builtin__ as builtins
+else:
+    import builtins
 
 
 def test_check_estimator_type():
@@ -44,3 +50,88 @@ class TestMaybeRound(object):
 
         result = utils.maybe_round(arr, precision=precision)
         assert np.array_equal(result, expected)
+
+
+class MockBuffer(object):
+    """
+    Mock buffer class for testing purposes.
+    """
+
+    def __init__(self):
+        self.buffer = ""
+        self.closed = False
+
+    def read(self):
+        return self.buffer
+
+    def write(self, val):
+        self.buffer += val
+
+    def close(self):
+        self.closed = True
+
+
+def mock_open(data, filepath):
+    """
+    An elaborate way to mock built-in functions for our write_to_buf tests.
+
+    The key method we need to override is the `open` function, but only in
+    the context of the test and not destroy its meaning outside of it.
+
+    Parameters
+    ----------
+    data : str
+        The data to write to the mock buffer.
+    filepath : str
+        The filepath that we are using in our tests. The file does not have to
+        actually exist in our tests, as that is not the focus here.
+    """
+
+    backup = builtins.open
+    mock_buffer = MockBuffer()
+
+    def new_open(path, *_):
+        assert path == filepath
+
+        new_open.called += 1
+        return mock_buffer
+
+    new_open.called = 0
+
+    def wrapper(f):
+        def inner_wrapper(*args, **kwargs):
+            try:
+                builtins.open = new_open
+                f(*args, **kwargs)
+
+                assert mock_buffer.buffer == data
+                assert new_open.called == 1
+                assert mock_buffer.closed
+            finally:
+                builtins.open = backup
+
+        return inner_wrapper
+    return wrapper
+
+
+class TestWriteToBuf(object):
+
+    data = "example-data"
+    filepath = "file-path.txt"
+
+    def test_no_buf(self):
+        # Nothing should happen here.
+        utils.write_to_buf(self.data, filepath_or_buffer=None)
+
+    def test_actual_buf(self):
+        buffer = MockBuffer()
+        utils.write_to_buf(self.data, filepath_or_buffer=buffer)
+
+        # Because a buffer was provided, we preserve state
+        # and do not close this buffer in this case.
+        assert buffer.read() == self.data
+        assert not buffer.closed
+
+    @mock_open(data, filepath)
+    def test_cat(self):
+        utils.write_to_buf(self.data, filepath_or_buffer=self.filepath)
