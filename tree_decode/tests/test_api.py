@@ -6,35 +6,42 @@ import numpy as np
 import pytest
 
 
-class TestGetTreeInfo(object):
+class BaseApiTest(object):
+
+    min_args = ()
+
+    @staticmethod
+    def api_call(*args, **kwargs):
+        raise NotImplementedError("API calling not implemented for base class")
 
     def test_unsupported(self):
         match = "Function support is only implemented for"
         message = "Expected NotImplementedError regarding no support"
 
         with pytest.raises(NotImplementedError, match=match, message=message):
-            api.get_tree_info([])
+            self.api_call([], *self.min_args)
 
     def test_unfitted(self):
         match = "instance is not fitted yet"
         message = "Expected NotFittedError regarding fitting"
 
         with pytest.raises(NotFittedError, match=match, message=message):
-            api.get_tree_info(DecisionTreeClassifier())
+            self.api_call(DecisionTreeClassifier(), *self.min_args)
 
 
-class TestGetDecisionInfo(object):
+class TestGetTreeInfo(BaseApiTest):
 
-    def test_unsupported(self):
-        match = "Function support is only implemented for"
-        message = "Expected NotImplementedError regarding no support"
+    min_args = ()
 
-        with pytest.raises(NotImplementedError, match=match, message=message):
-            api.get_decision_info([], np.array([]))
+    @staticmethod
+    def api_call(*args, **kwargs):
+        return api.get_tree_info(*args, **kwargs)
 
-    def test_unfitted(self):
-        match = "instance is not fitted yet"
-        message = "Expected NotFittedError regarding fitting"
 
-        with pytest.raises(NotFittedError, match=match, message=message):
-            api.get_decision_info(DecisionTreeClassifier(), np.array([]))
+class TestGetDecisionInfo(BaseApiTest):
+
+    min_args = (np.array([]),)
+
+    @staticmethod
+    def api_call(*args, **kwargs):
+        return api.get_decision_info(*args, **kwargs)
