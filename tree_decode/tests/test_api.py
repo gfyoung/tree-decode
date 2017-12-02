@@ -1,6 +1,6 @@
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.exceptions import NotFittedError
-from tree_decode.tests import load_model
+from tree_decode.tests.utils import load_model
 
 import tree_decode.api as api
 import numpy as np

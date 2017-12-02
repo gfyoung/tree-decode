@@ -1,5 +1,5 @@
 from sklearn.tree import DecisionTreeClassifier
-from tree_decode.tests import PY3
+from tree_decode.tests.utils import PY3
 
 import tree_decode.utils as utils
 import numpy as np
