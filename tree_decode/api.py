@@ -283,9 +283,7 @@ def demo():
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
     print(get_decision_info(estimator, data, names=names))
-
     print(get_decision_info(estimator, data, tab_size=2))
-    print("")
 
 
 if __name__ == "__main__":
