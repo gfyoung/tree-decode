@@ -8,7 +8,7 @@ __all__ = ["get_tree_info", "get_decision_info"]
 
 
 def get_tree_info(estimator, normalize=True, precision=3, names=None,
-                  label_index=None, tab_size=5):
+                  label_index=None, tab_size=5, filepath_or_buffer=None):
     """
     Print out the structure of a decision tree.
 
@@ -39,6 +39,14 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
         entire scores array will be displayed. Note that labels are 0-indexed.
     tab_size : int, default 5
         The amount of tabbing to be used when displaying indented lines.
+    filepath_or_buffer : str or file handle, default None
+        The file or buffer to which to write the output. If none is provided,
+        we return the string output as given.
+
+    Returns
+    -------
+    output_or_nothing : If a filepath or buffer was provided, nothing is
+                        returned. Otherwise, the string output is returned.
 
     Raises
     ------
@@ -139,10 +147,13 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
                                         left=children_left[i],
                                         name=name, cutoff=cutoff,
                                         right=children_right[i]) + "\n")
-    print(output)
+
+    utils.write_to_buf(output, filepath_or_buffer)
+    return output if filepath_or_buffer is None else None
 
 
-def get_decision_info(estimator, data, precision=3, names=None, tab_size=5):
+def get_decision_info(estimator, data, precision=3, names=None,
+                      tab_size=5, filepath_or_buffer=None):
     """
     Get the decision process for a tree on a piece of data.
 
@@ -163,6 +174,14 @@ def get_decision_info(estimator, data, precision=3, names=None, tab_size=5):
         "{feature-name} <= {cutoff}."
     tab_size : int, default 5
         The amount of tabbing to be used when displaying indented lines.
+    filepath_or_buffer : str or file handle, default None
+        The file or buffer to which to write the output. If none is provided,
+        we return the string output as given.
+
+    Returns
+    -------
+    output_or_nothing : If a filepath or buffer was provided, nothing is
+                        returned. Otherwise, the string output is returned.
 
     Raises
     ------
@@ -221,7 +240,9 @@ def get_decision_info(estimator, data, precision=3, names=None, tab_size=5):
             output += ("Decision ID Node {node_id} : "
                        "Scores = {scores}".format(node_id=node_id,
                                                   scores=probs))
-    print(output)
+
+    utils.write_to_buf(output, filepath_or_buffer)
+    return output if filepath_or_buffer is None else None
 
 
 def demo():
@@ -237,48 +258,48 @@ def demo():
     estimator = DecisionTreeClassifier(max_leaf_nodes=3, random_state=0)
 
     estimator.fit(x_train, y_train)
-    get_tree_info(estimator)
+    print(get_tree_info(estimator))
     print("")
 
     names = {0: "Sepal Length", 1: "Sepal Width",
              2: "Petal Length", 3: "Petal Width"}
-    get_tree_info(estimator, names=names)
+    print(get_tree_info(estimator, names=names))
     print("")
 
-    get_tree_info(estimator, precision=None)
+    print(get_tree_info(estimator, precision=None))
     print("")
 
-    get_tree_info(estimator, normalize=False)
+    print(get_tree_info(estimator, normalize=False))
     print("")
 
-    get_tree_info(estimator, label_index=2)
+    print(get_tree_info(estimator, label_index=2))
     print("")
 
-    get_tree_info(estimator, tab_size=2)
+    print(get_tree_info(estimator, tab_size=2))
     print("")
 
     index = 1
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
 
-    get_decision_info(estimator, data)
+    print(get_decision_info(estimator, data))
     print("")
 
     index = 2
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
 
-    get_decision_info(estimator, data, precision=None)
+    print(get_decision_info(estimator, data, precision=None))
     print("")
 
     index = 3
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
 
-    get_decision_info(estimator, data, names=names)
+    print(get_decision_info(estimator, data, names=names))
     print("")
 
-    get_decision_info(estimator, data, tab_size=2)
+    print(get_decision_info(estimator, data, tab_size=2))
     print("")
 
 

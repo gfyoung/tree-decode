@@ -73,3 +73,36 @@ def maybe_round(val, precision=None):
         return val.round(precision)
     else:
         return round(val, precision)
+
+
+def write_to_buf(output, filepath_or_buffer=None):
+    """
+    Write output to a file or buffer. If none is provided, nothing happens.
+
+    Parameters
+    ----------
+    output : str
+        The output to write.
+    filepath_or_buffer : str or file handle, default None
+        The file or buffer to which to write the output.
+    """
+
+    if filepath_or_buffer is None:
+        return
+
+    # We want to preserve state when writing to a buffer.
+    # If a buffer was provided, we don't close it. If a
+    # path is provided, we close the file buffer once we
+    # finish writing to the given filepath.
+    if isinstance(filepath_or_buffer, str):
+        f = open(filepath_or_buffer, "w")
+        close_file = True
+    else:
+        f = filepath_or_buffer
+        close_file = False
+
+    try:
+        f.write(output)
+    finally:
+        if close_file:
+            f.close()
