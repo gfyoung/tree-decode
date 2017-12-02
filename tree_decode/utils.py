@@ -24,7 +24,7 @@ def check_estimator_type(estimator):
     """
 
     if not isinstance(estimator, DecisionTreeClassifier):
-        raise NotImplementedError("get_tree_info is only implemented for "
+        raise NotImplementedError("Function support is only implemented for "
                                   "DecisionTreeClassifier. Support for "
                                   "other trees is forthcoming.")
 

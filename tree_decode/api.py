@@ -1,6 +1,5 @@
 from sklearn.preprocessing import normalize as normalize_values
 from sklearn.utils.validation import check_is_fitted
-from sklearn.tree import DecisionTreeClassifier
 
 import tree_decode.utils as utils
 import numpy as np
@@ -46,6 +45,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
                           for other trees is forthcoming.
     IndexError : the label index provided was out of bounds on the array of
                  label scores provided at each node.
+    NotFittedError : the estimator was not properly fitted yet.
     """
 
     utils.check_estimator_type(estimator)
@@ -162,6 +162,7 @@ def get_decision_info(estimator, data, precision=3, names=None):
     NotImplementedError : the estimator was not a DecisionTreeClassifier.
                           Note that this restriction is temporary. Support
                           for other trees is forthcoming.
+    NotFittedError : the estimator was not properly fitted yet.
     """
 
     utils.check_estimator_type(estimator)
@@ -214,6 +215,7 @@ def get_decision_info(estimator, data, precision=3, names=None):
 
 def demo():
     from sklearn.model_selection import train_test_split
+    from sklearn.tree import DecisionTreeClassifier
     from sklearn.datasets import load_iris
 
     iris = load_iris()
