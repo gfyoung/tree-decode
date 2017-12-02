@@ -16,7 +16,8 @@ BUGTRACK_URL = GITHUB_URL + "/issues"
 setup(
     name="tree_decode",
     version=decode_version,
-    packages=["tree_decode"],
+    packages=["tree_decode",
+              "tree_decode.tests"],
     include_package_data=True,
     license="MIT License",
     description=SHORT_DESCRIPTION,
