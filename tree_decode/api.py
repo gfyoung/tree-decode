@@ -83,6 +83,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
     previous_depth = -1
 
     print_tab = utils.get_tab(size=tab_size)
+    output = ""
 
     for i in range(n_nodes):
         node_depth = node_depths[i]
@@ -91,7 +92,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
         if is_leaves[i]:
             if previous_leaf:
                 if previous_depth > 0 and previous_depth > node_depth:
-                    print("")  # Readability
+                    output += "\n"  # Readability
 
             probs = tree.value[i][:]
 
@@ -115,14 +116,15 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
                 score = "scores = {scores}".format(scores=probs)
 
             leaf_info = "{tabbing}node={label} left node: {score}"
-            print(leaf_info.format(tabbing=tabbing, label=i, score=score))
+            output += (leaf_info.format(tabbing=tabbing, label=i,
+                                        score=score) + "\n")
 
             previous_depth = node_depth
             previous_leaf = True
         else:
             if previous_leaf:
                 previous_leaf = False
-                print("")  # Readability
+                output += "\n"  # Readability
 
             feature = features[i]
             threshold = thresholds[i]
@@ -133,10 +135,11 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
 
             node_info = ("{tabbing}node={label}: go to node {left} if "
                          "{name} <= {cutoff} else to node {right}.")
-            print(node_info.format(tabbing=tabbing, label=i,
-                                   left=children_left[i],
-                                   name=name, cutoff=cutoff,
-                                   right=children_right[i]))
+            output += (node_info.format(tabbing=tabbing, label=i,
+                                        left=children_left[i],
+                                        name=name, cutoff=cutoff,
+                                        right=children_right[i]) + "\n")
+    print(output)
 
 
 def get_decision_info(estimator, data, precision=3, names=None, tab_size=5):
