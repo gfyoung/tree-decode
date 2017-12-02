@@ -1,6 +1,7 @@
 from sklearn.tree import DecisionTreeClassifier
 
 import tree_decode.utils as utils
+import numpy as np
 import pytest
 
 
@@ -19,3 +20,27 @@ def test_check_estimator_type():
 def test_get_tab(tab_size):
     tab_size = 5 if tab_size is None else max(0, tab_size)
     assert utils.get_tab(tab_size) == " " * tab_size
+
+
+class TestMaybeRound(object):
+
+    @pytest.mark.parametrize("precision,expected", [(None, 2.05),
+                                                    (1, 2.0),
+                                                    (5, 2.05)])
+    def test_scalar(self, precision, expected):
+        scalar = 2.05
+        result = utils.maybe_round(scalar, precision=precision)
+
+        assert result == expected
+
+    @pytest.mark.parametrize("precision,expected", [(None, [2.05, 1.072, 3.6]),
+                                                    (0, [2.0, 1.0, 4.0]),
+                                                    (1, [2.0, 1.1, 3.6]),
+                                                    (2, [2.05, 1.07, 3.6]),
+                                                    (5, [2.05, 1.072, 3.6])])
+    def test_array(self, precision, expected):
+        expected = np.array(expected)
+        arr = np.array([2.05, 1.072, 3.6])
+
+        result = utils.maybe_round(arr, precision=precision)
+        assert np.array_equal(result, expected)

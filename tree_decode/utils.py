@@ -58,7 +58,6 @@ def maybe_round(val, precision=None):
     precision : int, default None
         The precision at which to perform rounding. If None is provided,
 
-
     Returns
     -------
     maybe_rounded_val : the number or array of numbers rounded to a
