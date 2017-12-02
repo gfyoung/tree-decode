@@ -8,7 +8,7 @@ __all__ = ["get_tree_info", "get_decision_info"]
 
 
 def get_tree_info(estimator, normalize=True, precision=3, names=None,
-                  label_index=None):
+                  label_index=None, tab_size=5):
     """
     Print out the structure of a decision tree.
 
@@ -37,6 +37,8 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
         classification). If an integer is provided, we will index into the
         scores array at each leaf and only display that score. Otherwise, the
         entire scores array will be displayed. Note that labels are 0-indexed.
+    tab_size : int, default 5
+        The amount of tabbing to be used when displaying indented lines.
 
     Raises
     ------
@@ -77,10 +79,10 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
         else:
             is_leaves[node_id] = True
 
-    print_tab = " " * 5
-
     previous_leaf = False
     previous_depth = -1
+
+    print_tab = utils.get_tab(size=tab_size)
 
     for i in range(n_nodes):
         node_depth = node_depths[i]
@@ -137,7 +139,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
                                    right=children_right[i]))
 
 
-def get_decision_info(estimator, data, precision=3, names=None):
+def get_decision_info(estimator, data, precision=3, names=None, tab_size=5):
     """
     Get the decision process for a tree on a piece of data.
 
@@ -152,10 +154,12 @@ def get_decision_info(estimator, data, precision=3, names=None):
         scores. If None is passed in, no rounding is performed.
     names : dict, default None
         A mapping from feature indices to string names. By default, when we
-        display the non-leaf node forks, we write something liek "Feature {i}
+        display the non-leaf node forks, we write something like "Feature {i}
         Score <= {cutoff}," where "i" is an integer. If names are provided,
         we will map "i" to a particular string name and write instead,
         "{feature-name} <= {cutoff}."
+    tab_size : int, default 5
+        The amount of tabbing to be used when displaying indented lines.
 
     Raises
     ------
@@ -183,7 +187,11 @@ def get_decision_info(estimator, data, precision=3, names=None):
     output = "Decision Path for Tree:\n"
     leaf_id = estimator.apply(data)
 
+    print_tab = utils.get_tab(size=tab_size)
+
     for node_id in node_index:
+        output += print_tab
+
         if leaf_id[0] != node_id:
             feature = features[node_id]
             feature_score = data[0, feature]
@@ -202,12 +210,12 @@ def get_decision_info(estimator, data, precision=3, names=None):
             feature_threshold = utils.maybe_round(feature_threshold,
                                                   precision=precision)
 
-            output += ("    Decision ID Node {node_id} : {name} = "
+            output += ("Decision ID Node {node_id} : {name} = "
                        "{score} {sign} {threshold}\n".format(
                         node_id=node_id, score=feature_score, name=name,
                         sign=threshold_sign, threshold=feature_threshold))
         else:
-            output += ("    Decision ID Node {node_id} : "
+            output += ("Decision ID Node {node_id} : "
                        "Scores = {scores}".format(node_id=node_id,
                                                   scores=probs))
     print(output)
@@ -243,6 +251,9 @@ def demo():
     get_tree_info(estimator, label_index=2)
     print("")
 
+    get_tree_info(estimator, tab_size=2)
+    print("")
+
     index = 1
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
@@ -262,6 +273,9 @@ def demo():
     print("Analyzing: " + str(data) + "\n")
 
     get_decision_info(estimator, data, names=names)
+    print("")
+
+    get_decision_info(estimator, data, tab_size=2)
     print("")
 
 

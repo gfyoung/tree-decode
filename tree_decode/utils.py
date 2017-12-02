@@ -29,6 +29,24 @@ def check_estimator_type(estimator):
                                   "other trees is forthcoming.")
 
 
+def get_tab(size=5):
+    """
+    Get a tab composed of a given number of spaces.
+
+    Parameters
+    ----------
+    size : int, default 5
+        The number of spaces to use for a tab.
+
+    Returns
+    -------
+    tab_str : str
+        The provided tab to a given number of spaces.
+    """
+
+    return " " * size
+
+
 def maybe_round(val, precision=None):
     """
     Potentially round a number or an array of numbers to a given precision.
