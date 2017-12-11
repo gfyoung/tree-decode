@@ -1,7 +1,7 @@
 from sklearn.preprocessing import normalize as normalize_values
 from sklearn.utils.validation import check_is_fitted
+from . import utils
 
-import tree_decode.utils as utils
 import numpy as np
 
 __all__ = ["get_tree_info", "get_decision_info"]

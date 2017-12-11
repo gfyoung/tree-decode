@@ -6,3 +6,6 @@ source activate decode
 
 echo "Installing packages..."
 conda install scikit-learn flake8 pytest
+
+echo "Installing repository..."
+python setup.py install

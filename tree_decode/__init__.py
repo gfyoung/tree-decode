@@ -1,4 +1,4 @@
-from tree_decode.api import *  # noqa
+from .api import *  # noqa
 
 __version__ = "0.1.0"
 

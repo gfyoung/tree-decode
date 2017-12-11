@@ -3,4 +3,5 @@
 echo "Linting repository..."
 source activate decode
 
-flake8
+flake8 setup.py
+flake8 tree_decode --filename=*.py
