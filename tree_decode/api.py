@@ -50,9 +50,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
 
     Raises
     ------
-    NotImplementedError : the estimator was not a DecisionTreeClassifier.
-                          Note that this restriction is temporary. Support
-                          for other trees is forthcoming.
+    NotImplementedError : the estimator is not supported or has a prediction.
     IndexError : the label index provided was out of bounds on the array of
                  output scores provided at each node.
     NotFittedError : the estimator was not properly fitted yet.
@@ -190,9 +188,8 @@ def get_decision_info(estimator, data, precision=3, names=None,
 
     Raises
     ------
-    NotImplementedError : the estimator was not a DecisionTreeClassifier.
-                          Note that this restriction is temporary. Support
-                          for other trees is forthcoming.
+    NotImplementedError : the estimator is not supported or has a prediction
+                          method that could not be recognized.
     IndexError : the label index provided was out of bounds on the array of
                  output scores provided at each node.
     NotFittedError : the estimator was not properly fitted yet.

@@ -7,6 +7,13 @@ tree_decode - Library that helps to remove the black-box
 surrounding decision trees from scikit-learn, making it
 easier to understand how they work and more importantly,
 to diagnose their issues when they produce unexpected results.
+
+The decision tree classes that scikit-learn currently supports are:
+
+* DecisionTreeClassifier
+* DecisionTreeRegressor
+
+Support for other such scikit-learn classes is being actively worked on.
 """
 
 

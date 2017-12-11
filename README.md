@@ -8,6 +8,13 @@ Inspired by Scikit-Learn's webpage on the matter, which you can find here:
 
 http://scikit-learn.org/stable/auto_examples/tree/plot_unveil_tree_structure.html
 
+The library aims to support all decision tree classes in Scikit-Learn. Currently, we support:
+
+* DecisionTreeClassifier
+* DecisionTreeRegressor
+
+Support for other such Scikit-Learn classes is being actively worked on.
+
 # Installation
 
 The code is available on PyPI and can be installed via pip:
@@ -24,7 +31,7 @@ python setup.py install
 
 After installation, you can run tests but starting up an interactive Python shell and running:
 
-~~~
+~~~python
 import tree_decode as td
 td.test()
 ~~~
@@ -35,7 +42,7 @@ Make sure to have `pytest>=3.0` installed for testing purposes.
 
 To see the code in action, you can find the demo by starting up an interactive Python shell and running:
 
-~~~
+~~~python
 from tree_decode.api import demo
 demo()
 ~~~
