@@ -1,6 +1,6 @@
 from tree_decode.tests.utils import load_model, MockBuffer
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.exceptions import NotFittedError
+from tree_decode.utils import _SUPPORTED
 
 import tree_decode.api as api
 import numpy as np
@@ -35,12 +35,13 @@ class BaseApiTest(object):
         with pytest.raises(NotImplementedError, match=match, message=message):
             self.api_call([], *self.min_args)
 
-    def test_unfitted(self):
+    @pytest.mark.parametrize("klass", _SUPPORTED)
+    def test_unfitted(self, klass):
         match = "instance is not fitted yet"
         message = "Expected NotFittedError regarding fitting"
 
         with pytest.raises(NotFittedError, match=match, message=message):
-            self.api_call(DecisionTreeClassifier(), *self.min_args)
+            self.api_call(klass(), *self.min_args)
 
 
 class TestGetTreeInfo(BaseApiTest):

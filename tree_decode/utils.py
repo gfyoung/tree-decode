@@ -4,6 +4,8 @@ Useful utilities for our tree-decoding API.
 
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
+_SUPPORTED = (DecisionTreeClassifier, DecisionTreeRegressor)
+
 
 def check_estimator_type(estimator):
     """
@@ -23,9 +25,7 @@ def check_estimator_type(estimator):
                           we do not support at the moment.
     """
 
-    supported = (DecisionTreeClassifier, DecisionTreeRegressor)
-
-    if not isinstance(estimator, supported):
+    if not isinstance(estimator, _SUPPORTED):
         klass = type(estimator).__name__
         raise NotImplementedError("Function support is not implemented for "
                                   "{klass}.".format(klass=klass))
