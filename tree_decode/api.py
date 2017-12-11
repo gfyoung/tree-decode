@@ -206,7 +206,21 @@ def get_decision_info(estimator, data, precision=3, names=None,
     node_index = node_indicator.indices[node_indicator.indptr[0]:
                                         node_indicator.indptr[1]]
 
-    probs = estimator.predict_proba(data)[0]
+    predict_methods = ("predict_proba", "predict")
+    predict_method = None
+
+    for possible_method in predict_methods:
+        if hasattr(estimator, possible_method):
+            predict_method = possible_method
+            break
+
+    if predict_method is None:
+        klass = type(estimator).__name__
+        msg = "{klass} has an unrecognizable estimator method"
+        raise NotImplementedError(msg.format(klass=klass))
+
+    probs = getattr(estimator, predict_method)(data)[0]
+    probs = np.atleast_1d(probs)
 
     if label_index is not None:
         try:

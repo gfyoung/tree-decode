@@ -217,6 +217,15 @@ Decision Path for Tree:
 """
         assert result == expected
 
+        result = self.api_call(self.dtr_model, self.dtr_data)
+        expected = """\
+Decision Path for Tree:
+     Decision ID Node 0 : Feature 0 Score = 5.8 > 3.133
+     Decision ID Node 4 : Feature 0 Score = 5.8 > 3.85
+     Decision ID Node 6 : Scores = [-0.869]
+"""
+        assert result == expected
+
     def test_precision(self):
         precision = 2
         result = self.api_call(self.dtc_model, self.dtc_data,
