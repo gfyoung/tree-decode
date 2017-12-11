@@ -26,7 +26,8 @@ class BaseApiTest(object):
 
     @classmethod
     def setup_class(cls):
-        cls.model = cls.load_model("decision-tree.pickle")
+        cls.dtc_model = cls.load_model("dtc-model.pickle")
+        cls.dtr_model = cls.load_model("dtr-model.pickle")
 
     def test_unsupported(self):
         match = "Function support is not implemented for"
@@ -53,7 +54,7 @@ class TestGetTreeInfo(BaseApiTest):
         return api.get_tree_info(*args, **kwargs)
 
     def test_basic(self):
-        result = self.api_call(self.model)
+        result = self.api_call(self.dtc_model)
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
      node=1 left node: scores = [[ 1.  0.  0.]]
@@ -64,10 +65,23 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 """
         assert result == expected
 
+        result = self.api_call(self.dtr_model)
+        expected = """\
+node=0: go to node 1 if feature 0 <= 3.133 else to node 4.
+     node=1: go to node 2 if feature 0 <= 0.514 else to node 3.
+          node=2 left node: scores = [[ 1.]]
+          node=3 left node: scores = [[ 1.]]
+
+     node=4: go to node 5 if feature 0 <= 3.85 else to node 6.
+          node=5 left node: scores = [[-1.]]
+          node=6 left node: scores = [[-1.]]
+"""
+        assert result == expected
+
     def test_names(self):
         names = {0: "Sepal Length", 1: "Sepal Width",
                  2: "Petal Length", 3: "Petal Width"}
-        result = self.api_call(self.model, names=names)
+        result = self.api_call(self.dtc_model, names=names)
         expected = """\
 node=0: go to node 1 if Petal Width <= 0.8 else to node 2.
      node=1 left node: scores = [[ 1.  0.  0.]]
@@ -80,7 +94,7 @@ node=0: go to node 1 if Petal Width <= 0.8 else to node 2.
 
     def test_precision(self):
         precision = 2
-        result = self.api_call(self.model, precision=precision)
+        result = self.api_call(self.dtc_model, precision=precision)
 
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
@@ -93,7 +107,7 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
         assert result == expected
 
     def test_normalize(self):
-        result = self.api_call(self.model, normalize=True)
+        result = self.api_call(self.dtc_model, normalize=True)
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
      node=1 left node: scores = [[ 1.  0.  0.]]
@@ -104,7 +118,7 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 """
         assert result == expected
 
-        result = self.api_call(self.model, normalize=False)
+        result = self.api_call(self.dtc_model, normalize=False)
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
      node=1 left node: scores = [[ 37.   0.   0.]]
@@ -117,7 +131,7 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 
     def test_label_index(self):
         label_index = 2
-        result = self.api_call(self.model, label_index=label_index)
+        result = self.api_call(self.dtc_model, label_index=label_index)
 
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
@@ -131,7 +145,7 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 
     def test_tab_size(self):
         tab_size = 0
-        result = self.api_call(self.model, tab_size=tab_size)
+        result = self.api_call(self.dtc_model, tab_size=tab_size)
 
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
@@ -144,7 +158,7 @@ node=4 left node: scores = [[ 0.     0.026  0.974]]
         assert result == expected
 
         tab_size = 2
-        result = self.api_call(self.model, tab_size=tab_size)
+        result = self.api_call(self.dtc_model, tab_size=tab_size)
 
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
@@ -158,7 +172,7 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 
     def test_buffer(self):
         buffer = MockBuffer()
-        result = self.api_call(self.model, filepath_or_buffer=buffer)
+        result = self.api_call(self.dtc_model, filepath_or_buffer=buffer)
 
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
@@ -177,14 +191,16 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 class TestGetDecisionInfo(BaseApiTest):
 
     min_args = (np.array([]),)
-    data = np.array([[5.8, 2.8, 5.1, 2.4]])
+
+    dtr_data = np.array([[5.8]])
+    dtc_data = np.array([[5.8, 2.8, 5.1, 2.4]])
 
     @staticmethod
     def api_call(*args, **kwargs):
         return api.get_decision_info(*args, **kwargs)
 
     def test_basic(self):
-        result = self.api_call(self.model, self.data)
+        result = self.api_call(self.dtc_model, self.dtc_data)
         expected = """\
 Decision Path for Tree:
      Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
@@ -195,7 +211,8 @@ Decision Path for Tree:
 
     def test_precision(self):
         precision = 2
-        result = self.api_call(self.model, self.data, precision=precision)
+        result = self.api_call(self.dtc_model, self.dtc_data,
+                               precision=precision)
 
         expected = """\
 Decision Path for Tree:
@@ -208,7 +225,7 @@ Decision Path for Tree:
     def test_names(self):
         names = {0: "Sepal Length", 1: "Sepal Width",
                  2: "Petal Length", 3: "Petal Width"}
-        result = self.api_call(self.model, self.data, names=names)
+        result = self.api_call(self.dtc_model, self.dtc_data, names=names)
         expected = """\
 Decision Path for Tree:
      Decision ID Node 0 : Petal Width = 2.4 > 0.8
@@ -219,7 +236,8 @@ Decision Path for Tree:
 
     def test_tab_size(self):
         tab_size = 0
-        result = self.api_call(self.model, self.data, tab_size=tab_size)
+        result = self.api_call(self.dtc_model, self.dtc_data,
+                               tab_size=tab_size)
 
         expected = """\
 Decision Path for Tree:
@@ -230,7 +248,8 @@ Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
         assert result == expected
 
         tab_size = 2
-        result = self.api_call(self.model, self.data, tab_size=tab_size)
+        result = self.api_call(self.dtc_model, self.dtc_data,
+                               tab_size=tab_size)
 
         expected = """\
 Decision Path for Tree:
@@ -242,7 +261,7 @@ Decision Path for Tree:
 
     def test_buffer(self):
         buffer = MockBuffer()
-        result = self.api_call(self.model, self.data,
+        result = self.api_call(self.dtc_model, self.dtc_data,
                                filepath_or_buffer=buffer)
 
         expected = """\
