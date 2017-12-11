@@ -242,6 +242,19 @@ Decision Path for Tree:
 """
         assert result == expected
 
+    def test_label_index(self):
+        label_index = 2
+        result = self.api_call(self.dtc_model, self.dtc_data,
+                               label_index=label_index)
+
+        expected = """\
+Decision Path for Tree:
+     Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
+     Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
+     Decision ID Node 4 : Scores = 0.974
+"""
+        assert result == expected
+
     def test_tab_size(self):
         tab_size = 0
         result = self.api_call(self.dtc_model, self.dtc_data,

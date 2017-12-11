@@ -33,7 +33,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
         map "i" to a particular string name and write instead, "go left if
         {feature-name} <= {cutoff}."
     label_index : int, default None
-        Whether we want to display the leaf score for a particular label (i.e.
+        Whether we want to display the leaf score for a particular output (e.g.
         classification). If an integer is provided, we will index into the
         scores array at each leaf and only display that score. Otherwise, the
         entire scores array will be displayed. Note that labels are 0-indexed.
@@ -54,7 +54,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
                           Note that this restriction is temporary. Support
                           for other trees is forthcoming.
     IndexError : the label index provided was out of bounds on the array of
-                 label scores provided at each node.
+                 output scores provided at each node.
     NotFittedError : the estimator was not properly fitted yet.
     """
 
@@ -153,7 +153,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
 
 
 def get_decision_info(estimator, data, precision=3, names=None,
-                      tab_size=5, filepath_or_buffer=None):
+                      label_index=None, tab_size=5, filepath_or_buffer=None):
     """
     Get the decision process for a tree on a piece of data.
 
@@ -172,6 +172,11 @@ def get_decision_info(estimator, data, precision=3, names=None,
         Score <= {cutoff}," where "i" is an integer. If names are provided,
         we will map "i" to a particular string name and write instead,
         "{feature-name} <= {cutoff}."
+    label_index : int, default None
+        Whether we want to display the leaf score for a particular output (e.g.
+        classification). If an integer is provided, we will index into the
+        scores array at each leaf and only display that score. Otherwise, the
+        entire scores array will be displayed. Note that labels are 0-indexed.
     tab_size : int, default 5
         The amount of tabbing to be used when displaying indented lines.
     filepath_or_buffer : str or file handle, default None
@@ -188,6 +193,8 @@ def get_decision_info(estimator, data, precision=3, names=None,
     NotImplementedError : the estimator was not a DecisionTreeClassifier.
                           Note that this restriction is temporary. Support
                           for other trees is forthcoming.
+    IndexError : the label index provided was out of bounds on the array of
+                 output scores provided at each node.
     NotFittedError : the estimator was not properly fitted yet.
     """
 
@@ -200,6 +207,18 @@ def get_decision_info(estimator, data, precision=3, names=None,
                                         node_indicator.indptr[1]]
 
     probs = estimator.predict_proba(data)[0]
+
+    if label_index is not None:
+        try:
+            probs = probs[label_index]
+        except IndexError:
+            msg = ("Index {label_index} is out of bounds on a "
+                   "decision tree with {n} possible outputs")
+            prob_counts = probs.shape[1]
+
+            raise IndexError(msg.format(n=prob_counts,
+                                        label_index=label_index))
+
     probs = utils.maybe_round(probs, precision=precision)
 
     tree = estimator.tree_
@@ -283,6 +302,7 @@ def demo():
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
     print(get_decision_info(estimator, data, names=names))
+    print(get_decision_info(estimator, data, label_index=2))
     print(get_decision_info(estimator, data, tab_size=2))
 
 
