@@ -143,6 +143,14 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 """
         assert result == expected
 
+        label_index = 10
+
+        match = "is out of bounds on a decision tree with"
+        message = "Expected NotImplementedError regarding no support"
+
+        with pytest.raises(IndexError, match=match, message=message):
+            self.api_call(self.dtc_model, label_index=label_index)
+
     def test_tab_size(self):
         tab_size = 0
         result = self.api_call(self.dtc_model, tab_size=tab_size)

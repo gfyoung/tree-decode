@@ -115,7 +115,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
                     score = "score = {score}".format(score=prob)
                 except IndexError:
                     msg = ("Index {label_index} is out of bounds on a "
-                           "decision tree with {n} possible labels")
+                           "decision tree with {n} possible outputs")
                     prob_counts = probs.shape[1]
 
                     raise IndexError(msg.format(n=prob_counts,
