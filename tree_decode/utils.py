@@ -24,9 +24,9 @@ def check_estimator_type(estimator):
     """
 
     if not isinstance(estimator, DecisionTreeClassifier):
-        raise NotImplementedError("Function support is only implemented for "
-                                  "DecisionTreeClassifier. Support for "
-                                  "other trees is forthcoming.")
+        klass = type(estimator).__name__
+        raise NotImplementedError("Function support is not implemented for "
+                                  "{klass}.".format(klass=klass))
 
 
 def get_tab(size=5):

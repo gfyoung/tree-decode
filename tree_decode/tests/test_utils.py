@@ -10,7 +10,7 @@ def test_check_estimator_type():
     estimator = DecisionTreeClassifier()
     utils.check_estimator_type(estimator)
 
-    match = "Function support is only implemented for"
+    match = "Function support is not implemented for"
     message = "Expected NotImplementedError regarding no support"
 
     with pytest.raises(NotImplementedError, match=match, message=message):
