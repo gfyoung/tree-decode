@@ -3,4 +3,4 @@
 echo "Running unittests..."
 source activate decode
 
-pytest
+pytest --cov=.

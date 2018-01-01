@@ -6,6 +6,7 @@
 *.iml
 
 # Python files
+*.coverage
 *.egg-info
 .cache
 build/
