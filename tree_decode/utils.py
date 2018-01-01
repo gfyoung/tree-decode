@@ -11,8 +11,12 @@ def check_estimator_type(estimator):
     """
     Check that the data type of estimator is one that we support.
 
-    Currently, we only support `sklearn.tree.DecisionTreeClassifier`,
-    though support for other trees is forthcoming.
+    Currently, the estimators we support are:
+
+    * DecisionTreeClassifier
+    * DecisionTreeRegressor
+
+    Support for other tree classifiers is forthcoming.
 
     Parameters
     ----------
