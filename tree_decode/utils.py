@@ -3,10 +3,10 @@ Useful utilities for our tree-decoding API.
 """
 
 from sklearn.tree import (DecisionTreeClassifier, DecisionTreeRegressor,
-                          ExtraTreeClassifier)
+                          ExtraTreeClassifier, ExtraTreeRegressor)
 
 _SUPPORTED = (DecisionTreeClassifier, DecisionTreeRegressor,
-              ExtraTreeClassifier)
+              ExtraTreeClassifier, ExtraTreeRegressor)
 
 
 def check_estimator_type(estimator):
@@ -18,6 +18,7 @@ def check_estimator_type(estimator):
     * DecisionTreeClassifier
     * DecisionTreeRegressor
     * ExtraTreeClassifier
+    * ExtraTreeRegressor
 
     Support for other tree classifiers is forthcoming.
 

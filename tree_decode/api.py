@@ -18,7 +18,7 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
 
     Parameters
     ----------
-    estimator : sklearn.tree.DecisionTreeClassifier
+    estimator : sklearn.tree.BaseDecisionTree
         The decision tree that we are to analyze.
     normalize : bool, default True
         Whether to normalize the label scores at the leaves so that they
