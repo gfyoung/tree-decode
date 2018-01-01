@@ -17,6 +17,48 @@ Support for other such scikit-learn classes is being actively worked on.
 """
 
 
+def demo():
+    from sklearn.model_selection import train_test_split
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn.datasets import load_iris
+
+    iris = load_iris()
+    y = iris.target
+    x = iris.data
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=0)
+    estimator = DecisionTreeClassifier(max_leaf_nodes=3, random_state=0)
+
+    estimator.fit(x_train, y_train)
+    print(get_tree_info(estimator))
+
+    names = {0: "Sepal Length", 1: "Sepal Width",
+             2: "Petal Length", 3: "Petal Width"}
+    print(get_tree_info(estimator, names=names))
+
+    print(get_tree_info(estimator, precision=None))
+    print(get_tree_info(estimator, normalize=False))
+    print(get_tree_info(estimator, label_index=2))
+    print(get_tree_info(estimator, tab_size=2))
+
+    index = 1
+    data = x_test[[index]]
+    print("Analyzing: " + str(data) + "\n")
+    print(get_decision_info(estimator, data))
+
+    index = 2
+    data = x_test[[index]]
+    print("Analyzing: " + str(data) + "\n")
+    print(get_decision_info(estimator, data, precision=None))
+
+    index = 3
+    data = x_test[[index]]
+    print("Analyzing: " + str(data) + "\n")
+    print(get_decision_info(estimator, data, names=names))
+    print(get_decision_info(estimator, data, label_index=2))
+    print(get_decision_info(estimator, data, tab_size=2))
+
+
 def test():
     """
     Run unit tests on the current tree_decode installation.
