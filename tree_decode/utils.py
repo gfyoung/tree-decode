@@ -2,9 +2,11 @@
 Useful utilities for our tree-decoding API.
 """
 
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.tree import (DecisionTreeClassifier, DecisionTreeRegressor,
+                          ExtraTreeClassifier)
 
-_SUPPORTED = (DecisionTreeClassifier, DecisionTreeRegressor)
+_SUPPORTED = (DecisionTreeClassifier, DecisionTreeRegressor,
+              ExtraTreeClassifier)
 
 
 def check_estimator_type(estimator):
@@ -15,6 +17,7 @@ def check_estimator_type(estimator):
 
     * DecisionTreeClassifier
     * DecisionTreeRegressor
+    * ExtraTreeClassifier
 
     Support for other tree classifiers is forthcoming.
 

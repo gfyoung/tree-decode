@@ -12,6 +12,7 @@ The library aims to support all decision tree classes in Scikit-Learn. Currently
 
 * DecisionTreeClassifier
 * DecisionTreeRegressor
+* ExtraTreeClassifier
 
 Support for other such Scikit-Learn classes is being actively worked on.
 

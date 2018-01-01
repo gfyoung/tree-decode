@@ -28,6 +28,7 @@ class BaseApiTest(object):
     def setup_class(cls):
         cls.dtc_model = cls.load_model("dtc-model.pickle")
         cls.dtr_model = cls.load_model("dtr-model.pickle")
+        cls.etc_model = cls.load_model("etc-model.pickle")
 
     def test_unsupported(self):
         match = "Function support is not implemented for"
@@ -75,6 +76,17 @@ node=0: go to node 1 if feature 0 <= 3.133 else to node 4.
      node=4: go to node 5 if feature 0 <= 3.85 else to node 6.
           node=5 left node: scores = [[-1.]]
           node=6 left node: scores = [[-1.]]
+"""
+        assert result == expected
+
+        result = self.api_call(self.etc_model)
+        expected = """\
+node=0: go to node 1 if feature 0 <= 5.364 else to node 2.
+     node=1 left node: scores = [[ 0.882  0.088  0.029]]
+
+     node=2: go to node 3 if feature 3 <= 1.922 else to node 4.
+          node=3 left node: scores = [[ 0.132  0.585  0.283]]
+          node=4 left node: scores = [[ 0.  0.  1.]]
 """
         assert result == expected
 
