@@ -30,33 +30,33 @@ def demo():
     estimator = DecisionTreeClassifier(max_leaf_nodes=3, random_state=0)
 
     estimator.fit(x_train, y_train)
-    print(get_tree_info(estimator))
+    print(get_tree_info(estimator))  # noqa
 
     names = {0: "Sepal Length", 1: "Sepal Width",
              2: "Petal Length", 3: "Petal Width"}
-    print(get_tree_info(estimator, names=names))
+    print(get_tree_info(estimator, names=names))  # noqa
 
-    print(get_tree_info(estimator, precision=None))
-    print(get_tree_info(estimator, normalize=False))
-    print(get_tree_info(estimator, label_index=2))
-    print(get_tree_info(estimator, tab_size=2))
+    print(get_tree_info(estimator, precision=None))  # noqa
+    print(get_tree_info(estimator, normalize=False))  # noqa
+    print(get_tree_info(estimator, label_index=2))  # noqa
+    print(get_tree_info(estimator, tab_size=2))  # noqa
 
     index = 1
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
-    print(get_decision_info(estimator, data))
+    print(get_decision_info(estimator, data))  # noqa
 
     index = 2
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
-    print(get_decision_info(estimator, data, precision=None))
+    print(get_decision_info(estimator, data, precision=None))  # noqa
 
     index = 3
     data = x_test[[index]]
     print("Analyzing: " + str(data) + "\n")
-    print(get_decision_info(estimator, data, names=names))
-    print(get_decision_info(estimator, data, label_index=2))
-    print(get_decision_info(estimator, data, tab_size=2))
+    print(get_decision_info(estimator, data, names=names))  # noqa
+    print(get_decision_info(estimator, data, label_index=2))  # noqa
+    print(get_decision_info(estimator, data, tab_size=2))  # noqa
 
 
 def test():
