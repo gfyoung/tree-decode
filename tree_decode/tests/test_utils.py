@@ -1,20 +1,26 @@
 from tree_decode.tests.utils import MockBuffer, mock_open
-from sklearn.tree import DecisionTreeClassifier
+from tree_decode.utils import _SUPPORTED
 
 import tree_decode.utils as utils
 import numpy as np
 import pytest
 
 
-def test_check_estimator_type():
-    estimator = DecisionTreeClassifier()
-    utils.check_estimator_type(estimator)
+class TestCheckEstimatorType(object):
 
-    match = "Function support is not implemented for"
-    message = "Expected NotImplementedError regarding no support"
+    @pytest.mark.parametrize("klass", _SUPPORTED)
+    def test_supported(self, klass):
 
-    with pytest.raises(NotImplementedError, match=match, message=message):
-        utils.check_estimator_type([])
+        # Make sure no exception is raised.
+        estimator = klass()
+        utils.check_estimator_type(estimator)
+
+    def test_unsupported(self):
+        match = "Function support is not implemented for"
+        message = "Expected NotImplementedError regarding no support"
+
+        with pytest.raises(NotImplementedError, match=match, message=message):
+            utils.check_estimator_type([])
 
 
 @pytest.mark.parametrize("tab_size", [-5, 0, 2, 5, None])
