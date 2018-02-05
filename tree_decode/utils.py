@@ -8,9 +8,9 @@ from sklearn.ensemble.forest import BaseForest
 from sklearn.exceptions import NotFittedError
 
 
-def check_estimator_type(estimator):
+def check_model_type(model):
     """
-    Check that the data type of estimator is one that we support.
+    Check that the data type of model is one that we support.
 
     Currently, the estimators we support are:
 
@@ -19,21 +19,24 @@ def check_estimator_type(estimator):
     * ExtraTreeClassifier
     * ExtraTreeRegressor
 
-    Support for other tree classifiers is forthcoming.
+    * RandomForestClassifier
+    * RandomForestRegressor
+    * ExtraTreesClassifier
+    * ExtraTreesRegressor
 
     Parameters
     ----------
-    estimator : object
-        The estimator to check.
+    model : object
+        The model to check.
 
     Raises
     ------
-    NotImplementedError : the data type of the estimator was one that
+    NotImplementedError : the data type of the model was one that
                           we do not support at the moment.
     """
 
-    if not isinstance(estimator, BaseDecisionTree):
-        klass = type(estimator).__name__
+    if not isinstance(model, (BaseDecisionTree, BaseForest)):
+        klass = type(model).__name__
         raise NotImplementedError("Function support is not implemented for "
                                   "{klass}.".format(klass=klass))
 

@@ -1,5 +1,4 @@
 from sklearn.preprocessing import normalize as normalize_values
-from sklearn.utils.validation import check_is_fitted
 from . import utils
 
 import numpy as np
@@ -60,8 +59,8 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
     NotFittedError : the estimator was not properly fitted yet.
     """
 
-    utils.check_estimator_type(estimator)
-    check_is_fitted(estimator, "tree_")
+    utils.check_model_type(estimator)
+    utils.check_is_fitted(estimator)
 
     names = names or {}
     tree = estimator.tree_
@@ -199,8 +198,8 @@ def get_decision_info(estimator, data, precision=3, names=None,
     NotFittedError : the estimator was not properly fitted yet.
     """
 
-    utils.check_estimator_type(estimator)
-    check_is_fitted(estimator, "tree_")
+    utils.check_model_type(estimator)
+    utils.check_is_fitted(estimator)
 
     names = names or {}
     node_indicator = estimator.decision_path(data)

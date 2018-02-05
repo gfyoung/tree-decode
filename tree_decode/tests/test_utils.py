@@ -8,18 +8,18 @@ import pytest
 
 class TestCheckEstimatorType(object):
 
-    def test_supported(self, tree):
+    def test_supported(self, model):
 
         # Make sure no exception is raised.
-        estimator = tree()
-        utils.check_estimator_type(estimator)
+        estimator = model()
+        utils.check_model_type(estimator)
 
     def test_unsupported(self):
         match = "Function support is not implemented for"
         message = "Expected NotImplementedError regarding no support"
 
         with pytest.raises(NotImplementedError, match=match, message=message):
-            utils.check_estimator_type([])
+            utils.check_model_type([])
 
 
 class TestCheckIsFitted(object):
