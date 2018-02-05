@@ -73,6 +73,42 @@ def check_is_fitted(model):
                                   "{klass}.".format(klass=klass))
 
 
+def get_estimators(model):
+    """
+    Get an iterable array of estimators given an ensemble or estimator.
+
+    Parameters
+    ----------
+    model : sklearn.ensemble.forest.BaseForest,
+            sklearn.tree.tree.BaseDecisionTree
+        The model whose estimator(s) we are extracting.
+
+    Returns
+    -------
+    estimator_array : list
+        A list of estimators that can be used for processing.
+
+    Raises
+    ------
+    NotImplementedError : the data type of the model is invalid for extracting
+        an estimator(s) from the model.
+    """
+
+    if isinstance(model, BaseDecisionTree):
+        return [model]
+    elif isinstance(model, BaseForest):
+        try:
+            return model.estimators_
+        except AttributeError:
+            msg = ("The ensemble model needs to be fitted first "
+                   "before estimators can be extracted")
+            raise NotFittedError(msg)
+    else:
+        klass = type(model).__name__
+        raise NotImplementedError("Cannot extract estimators for "
+                                  "{klass}.".format(klass=klass))
+
+
 def get_tab(size=5):
     """
     Get a tab composed of a given number of spaces.
@@ -103,7 +139,8 @@ def get_tree_at(ensemble, index):
     Parameters
     ----------
     ensemble : sklearn.ensemble.forest.BaseForest
-        The ensemble model from which to extract a tree.
+        The ensemble model from which to extract a tree. This function expects
+        that the ensemble is already fitted.
     index : int
         The index of the intended tree. To avoid an `IndexError`, it should be
         in the range of [0, number_of_trees - 1].

@@ -48,6 +48,41 @@ class TestCheckIsFitted(object):
             utils.check_is_fitted([])
 
 
+class TestExtractEstimators(object):
+
+    def test_extract_single(self, tree):
+        model = tree()
+        expected = [model]
+
+        result = utils.get_estimators(model)
+        assert expected == result
+
+    def test_extract_ensemble(self, ensemble):
+        model = ensemble()
+        model.estimators_ = [1, 2, 3]
+        expected = model.estimators_[:]
+
+        result = utils.get_estimators(model)
+        assert expected == result
+
+    def test_extract_unfitted_ensemble(self, ensemble):
+        model = ensemble()
+
+        match = ("The ensemble model needs to be fitted first "
+                 "before estimators can be extracted")
+        message = "Expected NotFittedError regarding unfitted ensemble model"
+
+        with pytest.raises(NotFittedError, match=match, message=message):
+            utils.get_estimators(model)
+
+    def test_extract_unsupported(self):
+        match = "Cannot extract estimators for"
+        message = "Expected NotImplementedError regarding no support"
+
+        with pytest.raises(NotImplementedError, match=match, message=message):
+            utils.get_estimators([])
+
+
 @pytest.mark.parametrize("tab_size", [-5, 0, 2, 5, None])
 def test_get_tab(tab_size):
     tab_size = 5 if tab_size is None else max(0, tab_size)
