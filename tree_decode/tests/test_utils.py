@@ -1,5 +1,5 @@
 from tree_decode.tests.utils import MockBuffer, mock_open
-from tree_decode.utils import _SUPPORTED
+from tree_decode.tests import _SUPPORTED
 
 import tree_decode.utils as utils
 import numpy as np

@@ -1,6 +1,6 @@
 from tree_decode.tests.utils import load_model, MockBuffer
 from sklearn.exceptions import NotFittedError
-from tree_decode.utils import _SUPPORTED
+from tree_decode.tests import _SUPPORTED
 
 import tree_decode.api as api
 import numpy as np
@@ -59,11 +59,11 @@ class TestGetTreeInfo(BaseApiTest):
         result = self.api_call(self.dtc_model)
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
-     node=1 left node: scores = [[ 1.  0.  0.]]
+     node=1 left node: scores = [[1. 0. 0.]]
 
      node=2: go to node 3 if feature 2 <= 4.95 else to node 4.
-          node=3 left node: scores = [[ 0.     0.917  0.083]]
-          node=4 left node: scores = [[ 0.     0.026  0.974]]
+          node=3 left node: scores = [[0.    0.917 0.083]]
+          node=4 left node: scores = [[0.    0.026 0.974]]
 """
         assert result == expected
 
@@ -71,8 +71,8 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
         expected = """\
 node=0: go to node 1 if feature 0 <= 3.133 else to node 4.
      node=1: go to node 2 if feature 0 <= 0.514 else to node 3.
-          node=2 left node: scores = [[ 1.]]
-          node=3 left node: scores = [[ 1.]]
+          node=2 left node: scores = [[1.]]
+          node=3 left node: scores = [[1.]]
 
      node=4: go to node 5 if feature 0 <= 3.85 else to node 6.
           node=5 left node: scores = [[-1.]]
@@ -83,22 +83,22 @@ node=0: go to node 1 if feature 0 <= 3.133 else to node 4.
         result = self.api_call(self.etc_model)
         expected = """\
 node=0: go to node 1 if feature 0 <= 5.364 else to node 2.
-     node=1 left node: scores = [[ 0.882  0.088  0.029]]
+     node=1 left node: scores = [[0.882 0.088 0.029]]
 
      node=2: go to node 3 if feature 3 <= 1.922 else to node 4.
-          node=3 left node: scores = [[ 0.132  0.585  0.283]]
-          node=4 left node: scores = [[ 0.  0.  1.]]
+          node=3 left node: scores = [[0.132 0.585 0.283]]
+          node=4 left node: scores = [[0. 0. 1.]]
 """
         assert result == expected
 
         result = self.api_call(self.etr_model)
         expected = """\
 node=0: go to node 1 if feature 2 <= 2.289 else to node 2.
-     node=1 left node: scores = [[ 0.]]
+     node=1 left node: scores = [[0.]]
 
      node=2: go to node 3 if feature 2 <= 5.029 else to node 4.
-          node=3 left node: scores = [[ 1.]]
-          node=4 left node: scores = [[ 1.]]
+          node=3 left node: scores = [[1.]]
+          node=4 left node: scores = [[1.]]
 """
         assert result == expected
 
@@ -108,11 +108,11 @@ node=0: go to node 1 if feature 2 <= 2.289 else to node 2.
         result = self.api_call(self.dtc_model, names=names)
         expected = """\
 node=0: go to node 1 if Petal Width <= 0.8 else to node 2.
-     node=1 left node: scores = [[ 1.  0.  0.]]
+     node=1 left node: scores = [[1. 0. 0.]]
 
      node=2: go to node 3 if Petal Length <= 4.95 else to node 4.
-          node=3 left node: scores = [[ 0.     0.917  0.083]]
-          node=4 left node: scores = [[ 0.     0.026  0.974]]
+          node=3 left node: scores = [[0.    0.917 0.083]]
+          node=4 left node: scores = [[0.    0.026 0.974]]
 """
         assert result == expected
 
@@ -122,11 +122,11 @@ node=0: go to node 1 if Petal Width <= 0.8 else to node 2.
 
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
-     node=1 left node: scores = [[ 1.  0.  0.]]
+     node=1 left node: scores = [[1. 0. 0.]]
 
      node=2: go to node 3 if feature 2 <= 4.95 else to node 4.
-          node=3 left node: scores = [[ 0.    0.92  0.08]]
-          node=4 left node: scores = [[ 0.    0.03  0.97]]
+          node=3 left node: scores = [[0.   0.92 0.08]]
+          node=4 left node: scores = [[0.   0.03 0.97]]
 """
         assert result == expected
 
@@ -134,22 +134,22 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
         result = self.api_call(self.dtc_model, normalize=True)
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
-     node=1 left node: scores = [[ 1.  0.  0.]]
+     node=1 left node: scores = [[1. 0. 0.]]
 
      node=2: go to node 3 if feature 2 <= 4.95 else to node 4.
-          node=3 left node: scores = [[ 0.     0.917  0.083]]
-          node=4 left node: scores = [[ 0.     0.026  0.974]]
+          node=3 left node: scores = [[0.    0.917 0.083]]
+          node=4 left node: scores = [[0.    0.026 0.974]]
 """
         assert result == expected
 
         result = self.api_call(self.dtc_model, normalize=False)
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
-     node=1 left node: scores = [[ 37.   0.   0.]]
+     node=1 left node: scores = [[37.  0.  0.]]
 
      node=2: go to node 3 if feature 2 <= 4.95 else to node 4.
-          node=3 left node: scores = [[  0.  33.   3.]]
-          node=4 left node: scores = [[  0.   1.  38.]]
+          node=3 left node: scores = [[ 0. 33.  3.]]
+          node=4 left node: scores = [[ 0.  1. 38.]]
 """
         assert result == expected
 
@@ -181,11 +181,11 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
-node=1 left node: scores = [[ 1.  0.  0.]]
+node=1 left node: scores = [[1. 0. 0.]]
 
 node=2: go to node 3 if feature 2 <= 4.95 else to node 4.
-node=3 left node: scores = [[ 0.     0.917  0.083]]
-node=4 left node: scores = [[ 0.     0.026  0.974]]
+node=3 left node: scores = [[0.    0.917 0.083]]
+node=4 left node: scores = [[0.    0.026 0.974]]
 """
         assert result == expected
 
@@ -194,11 +194,11 @@ node=4 left node: scores = [[ 0.     0.026  0.974]]
 
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
-  node=1 left node: scores = [[ 1.  0.  0.]]
+  node=1 left node: scores = [[1. 0. 0.]]
 
   node=2: go to node 3 if feature 2 <= 4.95 else to node 4.
-    node=3 left node: scores = [[ 0.     0.917  0.083]]
-    node=4 left node: scores = [[ 0.     0.026  0.974]]
+    node=3 left node: scores = [[0.    0.917 0.083]]
+    node=4 left node: scores = [[0.    0.026 0.974]]
 """
         assert result == expected
 
@@ -208,11 +208,11 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 
         expected = """\
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
-     node=1 left node: scores = [[ 1.  0.  0.]]
+     node=1 left node: scores = [[1. 0. 0.]]
 
      node=2: go to node 3 if feature 2 <= 4.95 else to node 4.
-          node=3 left node: scores = [[ 0.     0.917  0.083]]
-          node=4 left node: scores = [[ 0.     0.026  0.974]]
+          node=3 left node: scores = [[0.    0.917 0.083]]
+          node=4 left node: scores = [[0.    0.026 0.974]]
 """
         # We wrote to a buffer, so the result
         # is not returned to the user.
@@ -237,7 +237,7 @@ class TestGetDecisionInfo(BaseApiTest):
 Decision Path for Tree:
      Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
      Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
-     Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
+     Decision ID Node 4 : Scores = [0.    0.026 0.974]
 """
         assert result == expected
 
@@ -259,7 +259,7 @@ Decision Path for Tree:
 Decision Path for Tree:
      Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
      Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
-     Decision ID Node 4 : Scores = [ 0.    0.03  0.97]
+     Decision ID Node 4 : Scores = [0.   0.03 0.97]
 """
         assert result == expected
 
@@ -271,7 +271,7 @@ Decision Path for Tree:
 Decision Path for Tree:
      Decision ID Node 0 : Petal Width = 2.4 > 0.8
      Decision ID Node 2 : Petal Length = 5.1 > 4.95
-     Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
+     Decision ID Node 4 : Scores = [0.    0.026 0.974]
 """
         assert result == expected
 
@@ -297,7 +297,7 @@ Decision Path for Tree:
 Decision Path for Tree:
 Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
 Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
-Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
+Decision ID Node 4 : Scores = [0.    0.026 0.974]
 """
         assert result == expected
 
@@ -309,7 +309,7 @@ Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
 Decision Path for Tree:
   Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
   Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
-  Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
+  Decision ID Node 4 : Scores = [0.    0.026 0.974]
 """
         assert result == expected
 
@@ -322,7 +322,7 @@ Decision Path for Tree:
 Decision Path for Tree:
      Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
      Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
-     Decision ID Node 4 : Scores = [ 0.     0.026  0.974]
+     Decision ID Node 4 : Scores = [0.    0.026 0.974]
 """
         # We wrote to a buffer, so the result
         # is not returned to the user.

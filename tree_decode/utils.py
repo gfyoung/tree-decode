@@ -2,11 +2,7 @@
 Useful utilities for our tree-decoding API.
 """
 
-from sklearn.tree import (DecisionTreeClassifier, DecisionTreeRegressor,
-                          ExtraTreeClassifier, ExtraTreeRegressor)
-
-_SUPPORTED = (DecisionTreeClassifier, DecisionTreeRegressor,
-              ExtraTreeClassifier, ExtraTreeRegressor)
+from sklearn.tree.tree import BaseDecisionTree
 
 
 def check_estimator_type(estimator):
@@ -33,7 +29,7 @@ def check_estimator_type(estimator):
                           we do not support at the moment.
     """
 
-    if not isinstance(estimator, _SUPPORTED):
+    if not isinstance(estimator, BaseDecisionTree):
         klass = type(estimator).__name__
         raise NotImplementedError("Function support is not implemented for "
                                   "{klass}.".format(klass=klass))
