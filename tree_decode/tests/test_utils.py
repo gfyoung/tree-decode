@@ -1,4 +1,5 @@
 from tree_decode.tests.utils import MockBuffer, mock_open
+from sklearn.exceptions import NotFittedError
 
 import tree_decode.utils as utils
 import numpy as np
@@ -19,6 +20,32 @@ class TestCheckEstimatorType(object):
 
         with pytest.raises(NotImplementedError, match=match, message=message):
             utils.check_estimator_type([])
+
+
+class TestCheckIsFitted(object):
+
+    def test_fitted(self, tree):
+
+        # Make sure no exception is raised.
+        model = tree()
+        model.tree_ = "tree_"
+        utils.check_is_fitted(model)
+
+    def test_unfitted(self, tree):
+        match = "instance is not fitted yet"
+        message = "Expected NotFittedError when checking"
+
+        model = tree()
+
+        with pytest.raises(NotFittedError, match=match, message=message):
+            utils.check_is_fitted(model)
+
+    def test_unsupported(self):
+        match = "Function support is not implemented for"
+        message = "Expected NotImplementedError regarding no support"
+
+        with pytest.raises(NotImplementedError, match=match, message=message):
+            utils.check_is_fitted([])
 
 
 @pytest.mark.parametrize("tab_size", [-5, 0, 2, 5, None])

@@ -2,7 +2,9 @@
 Useful utilities for our tree-decoding API.
 """
 
+from sklearn.utils.validation import check_is_fitted as _check_is_fitted
 from sklearn.tree.tree import BaseDecisionTree
+from sklearn.ensemble.forest import BaseForest
 
 
 def check_estimator_type(estimator):
@@ -31,6 +33,38 @@ def check_estimator_type(estimator):
 
     if not isinstance(estimator, BaseDecisionTree):
         klass = type(estimator).__name__
+        raise NotImplementedError("Function support is not implemented for "
+                                  "{klass}.".format(klass=klass))
+
+
+def check_is_fitted(model):
+    """
+    Check whether a model has been fitted.
+
+    This function only applies to tree-based models and is a subset of
+    scikit-learn's `check_is_fitted` function.
+
+    Parameters
+    ----------
+    model : object
+        The model to check.
+
+    Returns
+    -------
+    is_fitted : bool
+        Whether or not the model is fitted.
+
+    Raises
+    ------
+    NotImplementedError : the data type of the model is not supported.
+    """
+
+    if isinstance(model, BaseDecisionTree):
+        _check_is_fitted(model, "tree_")
+    elif isinstance(model, BaseForest):
+        _check_is_fitted(model, "estimators_")
+    else:
+        klass = type(model).__name__
         raise NotImplementedError("Function support is not implemented for "
                                   "{klass}.".format(klass=klass))
 
