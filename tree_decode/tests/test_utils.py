@@ -54,6 +54,46 @@ def test_get_tab(tab_size):
     assert utils.get_tab(tab_size) == " " * tab_size
 
 
+class TestGetTreeAt(object):
+
+    @pytest.mark.parametrize("index", [0, 1])
+    def test_get(self, index, ensemble):
+        model = ensemble()
+        model.estimators_ = [5, 6]
+        assert utils.get_tree_at(model, index) == model.estimators_[index]
+
+    def test_invalid(self):
+        match = "This is not a valid tree ensemble model"
+        message = "Expected TypeError because this object is of the wrong type"
+
+        index = 0
+        model = []
+
+        with pytest.raises(TypeError, match=match, message=message):
+            utils.get_tree_at(model, index)
+
+    def test_out_of_bounds(self, ensemble):
+        match = "There is no tree at index"
+        message = "Expected IndexError because the index is out of bounds"
+
+        index = 2
+        model = ensemble()
+        model.estimators_ = [5, 6]
+
+        with pytest.raises(IndexError, match=match, message=message):
+            utils.get_tree_at(model, index)
+
+    def test_unfitted(self, ensemble):
+        match = "This model has not been fitted yet"
+        message = "Expected NotFittedError because the model is not fitted yet"
+
+        index = 0
+        model = ensemble()
+
+        with pytest.raises(NotFittedError, match=match, message=message):
+            utils.get_tree_at(model, index)
+
+
 class TestMaybeRound(object):
 
     @pytest.mark.parametrize("precision,expected", [(None, 2.05),

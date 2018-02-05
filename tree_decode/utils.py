@@ -5,6 +5,7 @@ Useful utilities for our tree-decoding API.
 from sklearn.utils.validation import check_is_fitted as _check_is_fitted
 from sklearn.tree.tree import BaseDecisionTree
 from sklearn.ensemble.forest import BaseForest
+from sklearn.exceptions import NotFittedError
 
 
 def check_estimator_type(estimator):
@@ -85,6 +86,49 @@ def get_tab(size=5):
     """
 
     return " " * size
+
+
+def get_tree_at(ensemble, index):
+    """
+    Extract a single tree from an ensemble model.
+
+    Ensemble models store their trees in an array, which can be indexed like
+    a list or any other array-like. This utility allows users to do that
+    type of accessing without having to remember the name of the array that
+    stores these trees.
+
+    Parameters
+    ----------
+    ensemble : sklearn.ensemble.forest.BaseForest
+        The ensemble model from which to extract a tree.
+    index : int
+        The index of the intended tree. To avoid an `IndexError`, it should be
+        in the range of [0, number_of_trees - 1].
+
+    Returns
+    -------
+    tree : sklearn.tree.tree.BaseDecisionTree
+        The extracted tree from the ensemble.
+
+    Raises
+    ------
+    IndexError : An invalid index was passed in to retrieve a tree.
+    NotFittedError : The model has not been fitted yet, so obtaining
+        an estimator is invalid in this case.
+    TypeError : The object passed in was not a valid ensemble model.
+    """
+
+    if not isinstance(ensemble, BaseForest):
+        raise TypeError("This is not a valid tree ensemble model")
+
+    try:
+        return ensemble.estimators_[index]
+    except AttributeError:
+        msg = "This model has not been fitted yet"
+        raise NotFittedError(msg)
+    except IndexError:
+        msg = "There is no tree at index {i}"
+        raise IndexError(msg.format(i=index))
 
 
 def maybe_round(val, precision=None):

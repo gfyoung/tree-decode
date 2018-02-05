@@ -4,7 +4,11 @@ from . import utils
 
 import numpy as np
 
-__all__ = ["get_tree_info", "get_decision_info"]
+__all__ = ["get_tree_info", "get_decision_info", "get_tree_at"]
+
+# Surface this function in the API to enable
+# ease of accessing trees in an ensemble class.
+get_tree_at = utils.get_tree_at
 
 
 def get_tree_info(estimator, normalize=True, precision=3, names=None,
