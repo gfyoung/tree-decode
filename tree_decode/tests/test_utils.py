@@ -1,5 +1,4 @@
 from tree_decode.tests.utils import MockBuffer, mock_open
-from tree_decode.tests import _SUPPORTED
 
 import tree_decode.utils as utils
 import numpy as np
@@ -8,11 +7,10 @@ import pytest
 
 class TestCheckEstimatorType(object):
 
-    @pytest.mark.parametrize("klass", _SUPPORTED)
-    def test_supported(self, klass):
+    def test_supported(self, tree):
 
         # Make sure no exception is raised.
-        estimator = klass()
+        estimator = tree()
         utils.check_estimator_type(estimator)
 
     def test_unsupported(self):
