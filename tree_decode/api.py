@@ -159,15 +159,18 @@ def get_tree_info(model, normalize=True, precision=3, names=None,
     return output if filepath_or_buffer is None else None
 
 
-def get_decision_info(estimator, data, precision=3, names=None,
+def get_decision_info(model, data, precision=3, names=None,
                       label_index=None, tab_size=5, filepath_or_buffer=None):
     """
     Get the decision process for a tree on a piece of data.
 
     Parameters
     ----------
-    estimator : sklearn.tree.tree.BaseDecisionTree
-        The decision tree that we are to analyze.
+    model : sklearn.ensemble.forest.BaseForest or
+            sklearn.tree.tree.BaseDecisionTree
+        The tree-based model that we are to analyze. Can be an individual
+        estimator (e.g. DecisionTreeClassifier) or an ensemble model
+        (e.g. RandomForestRegressor).
     data : np.ndarray
         A 2-D array compromising ONE piece of input data.
     precision : int or None, default 3
@@ -197,88 +200,93 @@ def get_decision_info(estimator, data, precision=3, names=None,
 
     Raises
     ------
-    NotImplementedError : the estimator is not supported or has a prediction
+    NotImplementedError : the model is not supported or has a prediction
                           method that could not be recognized.
     IndexError : the label index provided was out of bounds on the array of
                  output scores provided at each node.
-    NotFittedError : the estimator was not properly fitted yet.
+    NotFittedError : the model was not properly fitted yet.
     """
 
-    utils.check_model_type(estimator)
-    utils.check_is_fitted(estimator)
+    utils.check_model_type(model)
+    utils.check_is_fitted(model)
 
+    output = ""
     names = names or {}
-    node_indicator = estimator.decision_path(data)
-    node_index = node_indicator.indices[node_indicator.indptr[0]:
-                                        node_indicator.indptr[1]]
 
     predict_methods = ("predict_proba", "predict")
     predict_method = None
 
     for possible_method in predict_methods:
-        if hasattr(estimator, possible_method):
+        if hasattr(model, possible_method):
             predict_method = possible_method
             break
 
     if predict_method is None:
-        klass = type(estimator).__name__
-        msg = "{klass} has an unrecognizable estimator method"
+        klass = type(model).__name__
+        msg = "{klass} has an unrecognizable predict method"
         raise NotImplementedError(msg.format(klass=klass))
 
-    probs = getattr(estimator, predict_method)(data)[0]
-    probs = np.atleast_1d(probs)
+    estimators = utils.get_estimators(model)
 
-    if label_index is not None:
-        try:
-            probs = probs[label_index]
-        except IndexError:
-            msg = ("Index {label_index} is out of bounds on a "
-                   "decision tree with {n} possible outputs")
-            prob_counts = probs.shape[1]
+    for index, estimator in enumerate(estimators):
+        node_indicator = estimator.decision_path(data)
+        node_index = node_indicator.indices[node_indicator.indptr[0]:
+                                            node_indicator.indptr[1]]
 
-            raise IndexError(msg.format(n=prob_counts,
-                                        label_index=label_index))
+        probs = getattr(estimator, predict_method)(data)[0]
+        probs = np.atleast_1d(probs)
 
-    probs = utils.maybe_round(probs, precision=precision)
+        if label_index is not None:
+            try:
+                probs = probs[label_index]
+            except IndexError:
+                msg = ("Index {label_index} is out of bounds on "
+                       "decision tree {ind} with {n} possible outputs")
+                prob_counts = probs.shape[0]
 
-    tree = estimator.tree_
-    features = tree.feature
-    thresholds = tree.threshold
+                raise IndexError(msg.format(n=prob_counts, ind=index,
+                                            label_index=label_index))
 
-    output = "Decision Path for Tree:\n"
-    leaf_id = estimator.apply(data)
+        probs = utils.maybe_round(probs, precision=precision)
 
-    print_tab = utils.get_tab(size=tab_size)
+        tree = estimator.tree_
+        features = tree.feature
+        thresholds = tree.threshold
 
-    for node_id in node_index:
-        output += print_tab
+        output += "\nDecision Path for Tree {ind}:\n".format(ind=index)
+        leaf_id = estimator.apply(data)
 
-        if leaf_id[0] != node_id:
-            feature = features[node_id]
-            feature_score = data[0, feature]
-            feature_threshold = thresholds[node_id]
+        print_tab = utils.get_tab(size=tab_size)
 
-            default = "Feature {name} Score".format(name=feature)
-            name = names.get(feature, default)
+        for node_id in node_index:
+            output += print_tab
 
-            if feature_score <= thresholds[node_id]:
-                threshold_sign = "<="
-            else:
-                threshold_sign = ">"
+            if leaf_id[0] != node_id:
+                feature = features[node_id]
+                feature_score = data[0, feature]
+                feature_threshold = thresholds[node_id]
 
-            feature_score = utils.maybe_round(feature_score,
-                                              precision=precision)
-            feature_threshold = utils.maybe_round(feature_threshold,
+                default = "Feature {name} Score".format(name=feature)
+                name = names.get(feature, default)
+
+                if feature_score <= thresholds[node_id]:
+                    threshold_sign = "<="
+                else:
+                    threshold_sign = ">"
+
+                feature_score = utils.maybe_round(feature_score,
                                                   precision=precision)
+                feature_threshold = utils.maybe_round(feature_threshold,
+                                                      precision=precision)
 
-            output += ("Decision ID Node {node_id} : {name} = "
-                       "{score} {sign} {threshold}\n".format(
-                        node_id=node_id, score=feature_score, name=name,
-                        sign=threshold_sign, threshold=feature_threshold))
-        else:
-            output += ("Decision ID Node {node_id} : "
-                       "Scores = {scores}\n".format(node_id=node_id,
-                                                    scores=probs))
+                output += ("Decision ID Node {node_id} : {name} = "
+                           "{score} {sign} {threshold}\n".format(
+                            node_id=node_id, score=feature_score, name=name,
+                            sign=threshold_sign, threshold=feature_threshold))
+            else:
+                output += ("Decision ID Node {node_id} : "
+                           "Scores = {scores}\n".format(node_id=node_id,
+                                                        scores=probs))
 
     utils.write_to_buf(output, filepath_or_buffer)
     return output if filepath_or_buffer is None else None

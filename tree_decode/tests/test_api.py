@@ -175,7 +175,7 @@ node=0: go to node 1 if feature 2 <= 2.6 else to node 2.
                          node=11 left node: scores = [[0. 1. 0.]]
 
                     node=12 left node: scores = [[0. 0. 1.]]
-"""
+"""  # noqa
         assert result == expected
 
         result = self.api_call(self.rfr_model)
@@ -505,7 +505,7 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
         label_index = 10
 
         match = "is out of bounds on decision tree"
-        message = "Expected NotImplementedError regarding no support"
+        message = "Expected IndexError regarding no support"
 
         with pytest.raises(IndexError, match=match, message=message):
             self.api_call(self.dtc_model, label_index=label_index)
@@ -573,6 +573,13 @@ class TestGetDecisionInfo(BaseApiTest):
 
     dtr_data = np.array([[5.8]])
     dtc_data = np.array([[5.8, 2.8, 5.1, 2.4]])
+    etc_data = np.array([[5.8, 2.8, 5.1, 2.4]])
+    etr_data = np.array([[5.8, 2.8, 5.1, 2.4]])
+
+    rfc_data = np.array([[5.8, 2.8, 5.1, 2.4]])
+    rfr_data = np.array([[5.8, 2.8, 5.1, 2.4]])
+    etsc_data = np.array([[5.8, 2.8, 5.1, 2.4]])
+    etsr_data = np.array([[5.8, 2.8, 5.1, 2.4]])
 
     @staticmethod
     def api_call(*args, **kwargs):
@@ -581,7 +588,8 @@ class TestGetDecisionInfo(BaseApiTest):
     def test_basic(self):
         result = self.api_call(self.dtc_model, self.dtc_data)
         expected = """\
-Decision Path for Tree:
+
+Decision Path for Tree 0:
      Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
      Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
      Decision ID Node 4 : Scores = [0.    0.026 0.974]
@@ -590,10 +598,109 @@ Decision Path for Tree:
 
         result = self.api_call(self.dtr_model, self.dtr_data)
         expected = """\
-Decision Path for Tree:
+
+Decision Path for Tree 0:
      Decision ID Node 0 : Feature 0 Score = 5.8 > 3.133
      Decision ID Node 4 : Feature 0 Score = 5.8 > 3.85
      Decision ID Node 6 : Scores = [-0.869]
+"""
+        assert result == expected
+
+        result = self.api_call(self.etc_model, self.etc_data)
+        expected = """\
+
+Decision Path for Tree 0:
+     Decision ID Node 0 : Feature 0 Score = 5.8 > 5.364
+     Decision ID Node 2 : Feature 3 Score = 2.4 > 1.922
+     Decision ID Node 4 : Scores = [0. 0. 1.]
+"""
+        assert result == expected
+
+        result = self.api_call(self.etr_model, self.etr_data)
+        expected = """\
+
+Decision Path for Tree 0:
+     Decision ID Node 0 : Feature 2 Score = 5.1 > 2.289
+     Decision ID Node 2 : Feature 2 Score = 5.1 > 5.029
+     Decision ID Node 4 : Scores = [2.]
+"""
+        assert result == expected
+
+        result = self.api_call(self.rfc_model, self.rfc_data)
+        expected = """\
+
+Decision Path for Tree 0:
+     Decision ID Node 0 : Feature 0 Score = 5.8 > 5.45
+     Decision ID Node 6 : Feature 0 Score = 5.8 <= 6.35
+     Decision ID Node 7 : Feature 3 Score = 2.4 > 1.7
+     Decision ID Node 13 : Feature 0 Score = 5.8 <= 5.95
+     Decision ID Node 14 : Feature 1 Score = 2.8 <= 3.1
+     Decision ID Node 15 : Scores = [0. 0. 1.]
+
+Decision Path for Tree 1:
+     Decision ID Node 0 : Feature 2 Score = 5.1 > 2.6
+     Decision ID Node 2 : Feature 2 Score = 5.1 > 4.85
+     Decision ID Node 4 : Feature 1 Score = 2.8 > 2.6
+     Decision ID Node 8 : Feature 3 Score = 2.4 > 1.75
+     Decision ID Node 12 : Scores = [0. 0. 1.]
+"""
+        assert result == expected
+
+        result = self.api_call(self.rfr_model, self.rfr_data)
+        expected = """\
+
+Decision Path for Tree 0:
+     Decision ID Node 0 : Feature 2 Score = 5.1 > 2.35
+     Decision ID Node 2 : Feature 3 Score = 2.4 > 1.75
+     Decision ID Node 8 : Feature 2 Score = 5.1 > 4.85
+     Decision ID Node 12 : Scores = [2.]
+
+Decision Path for Tree 1:
+     Decision ID Node 0 : Feature 2 Score = 5.1 > 4.7
+     Decision ID Node 4 : Feature 2 Score = 5.1 > 4.95
+     Decision ID Node 8 : Scores = [2.]
+"""
+        assert result == expected
+
+        result = self.api_call(self.etsc_model, self.etsc_data)
+        expected = """\
+
+Decision Path for Tree 0:
+     Decision ID Node 0 : Feature 3 Score = 2.4 > 1.793
+     Decision ID Node 26 : Feature 3 Score = 2.4 > 1.921
+     Decision ID Node 32 : Scores = [0. 0. 1.]
+
+Decision Path for Tree 1:
+     Decision ID Node 0 : Feature 3 Score = 2.4 > 1.585
+     Decision ID Node 22 : Feature 1 Score = 2.8 > 2.741
+     Decision ID Node 24 : Feature 2 Score = 5.1 <= 5.596
+     Decision ID Node 25 : Feature 2 Score = 5.1 > 4.688
+     Decision ID Node 27 : Feature 2 Score = 5.1 <= 5.36
+     Decision ID Node 28 : Feature 1 Score = 2.8 <= 3.29
+     Decision ID Node 29 : Feature 2 Score = 5.1 > 5.015
+     Decision ID Node 35 : Scores = [0. 0. 1.]
+"""
+        assert result == expected
+
+        result = self.api_call(self.etsr_model, self.etsr_data)
+        expected = """\
+
+Decision Path for Tree 0:
+     Decision ID Node 0 : Feature 0 Score = 5.8 <= 6.073
+     Decision ID Node 1 : Feature 1 Score = 2.8 > 2.714
+     Decision ID Node 7 : Feature 3 Score = 2.4 > 0.97
+     Decision ID Node 9 : Feature 2 Score = 5.1 > 5.047
+     Decision ID Node 15 : Scores = [2.]
+
+Decision Path for Tree 1:
+     Decision ID Node 0 : Feature 3 Score = 2.4 > 0.581
+     Decision ID Node 2 : Feature 3 Score = 2.4 > 1.335
+     Decision ID Node 6 : Feature 2 Score = 5.1 <= 5.113
+     Decision ID Node 7 : Feature 2 Score = 5.1 > 4.382
+     Decision ID Node 9 : Feature 2 Score = 5.1 > 4.713
+     Decision ID Node 13 : Feature 0 Score = 5.8 <= 6.653
+     Decision ID Node 14 : Feature 2 Score = 5.1 > 5.076
+     Decision ID Node 22 : Scores = [2.]
 """
         assert result == expected
 
@@ -603,7 +710,8 @@ Decision Path for Tree:
                                precision=precision)
 
         expected = """\
-Decision Path for Tree:
+
+Decision Path for Tree 0:
      Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
      Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
      Decision ID Node 4 : Scores = [0.   0.03 0.97]
@@ -615,7 +723,8 @@ Decision Path for Tree:
                  2: "Petal Length", 3: "Petal Width"}
         result = self.api_call(self.dtc_model, self.dtc_data, names=names)
         expected = """\
-Decision Path for Tree:
+
+Decision Path for Tree 0:
      Decision ID Node 0 : Petal Width = 2.4 > 0.8
      Decision ID Node 2 : Petal Length = 5.1 > 4.95
      Decision ID Node 4 : Scores = [0.    0.026 0.974]
@@ -628,12 +737,22 @@ Decision Path for Tree:
                                label_index=label_index)
 
         expected = """\
-Decision Path for Tree:
+
+Decision Path for Tree 0:
      Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
      Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
      Decision ID Node 4 : Scores = 0.974
 """
         assert result == expected
+
+        label_index = 10
+
+        match = "is out of bounds on decision tree"
+        message = "Expected IndexError regarding no support"
+
+        with pytest.raises(IndexError, match=match, message=message):
+            self.api_call(self.dtc_model, self.dtc_data,
+                          label_index=label_index)
 
     def test_tab_size(self):
         tab_size = 0
@@ -641,7 +760,8 @@ Decision Path for Tree:
                                tab_size=tab_size)
 
         expected = """\
-Decision Path for Tree:
+
+Decision Path for Tree 0:
 Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
 Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
 Decision ID Node 4 : Scores = [0.    0.026 0.974]
@@ -653,7 +773,8 @@ Decision ID Node 4 : Scores = [0.    0.026 0.974]
                                tab_size=tab_size)
 
         expected = """\
-Decision Path for Tree:
+
+Decision Path for Tree 0:
   Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
   Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
   Decision ID Node 4 : Scores = [0.    0.026 0.974]
@@ -666,7 +787,8 @@ Decision Path for Tree:
                                filepath_or_buffer=buffer)
 
         expected = """\
-Decision Path for Tree:
+
+Decision Path for Tree 0:
      Decision ID Node 0 : Feature 3 Score = 2.4 > 0.8
      Decision ID Node 2 : Feature 2 Score = 5.1 > 4.95
      Decision ID Node 4 : Scores = [0.    0.026 0.974]
