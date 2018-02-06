@@ -1,6 +1,6 @@
 from .api import *  # noqa
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __doc__ = """
 tree_decode - Library that helps to remove the black-box
