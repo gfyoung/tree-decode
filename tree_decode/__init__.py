@@ -12,12 +12,21 @@ The decision tree classes that scikit-learn currently supports are:
 
 * DecisionTreeClassifier
 * DecisionTreeRegressor
+* ExtraTreeClassifier
+* ExtraTreeRegressor
 
-Support for other such scikit-learn classes is being actively worked on.
+* RandomForestClassifier
+* RandomForestRegressor
+* ExtraTreesClassifier
+* ExtraTreesRegressor
 """
 
 
 def demo():
+    """
+    Execute the demo for `tree_decode` that shows all of the functionality.
+    """
+
     from sklearn.model_selection import train_test_split
     from sklearn.tree import DecisionTreeClassifier
     from sklearn.datasets import load_iris

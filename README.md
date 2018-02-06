@@ -15,7 +15,10 @@ The library aims to support all decision tree classes in Scikit-Learn. Currently
 * ExtraTreeClassifier
 * ExtraTreeRegressor
 
-Support for other such Scikit-Learn classes is being actively worked on.
+* RandomForestClassifier
+* RandomForestRegressor
+* ExtraTreesClassifier
+* ExtraTreesRegressor
 
 # Installation
 
@@ -45,6 +48,6 @@ Make sure to have `pytest>=3.0` installed for testing purposes.
 To see the code in action, you can find the demo by starting up an interactive Python shell and running:
 
 ~~~python
-from tree_decode.api import demo
-demo()
+import tree_decode as td
+td.demo()
 ~~~
