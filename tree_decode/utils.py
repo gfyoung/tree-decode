@@ -79,7 +79,7 @@ def get_estimators(model):
 
     Parameters
     ----------
-    model : sklearn.ensemble.forest.BaseForest,
+    model : sklearn.ensemble.forest.BaseForest or
             sklearn.tree.tree.BaseDecisionTree
         The model whose estimator(s) we are extracting.
 

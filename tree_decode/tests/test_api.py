@@ -56,6 +56,10 @@ class TestGetTreeInfo(BaseApiTest):
     def test_basic(self):
         result = self.api_call(self.dtc_model)
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
      node=1 left node: scores = [[1. 0. 0.]]
 
@@ -67,6 +71,10 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 
         result = self.api_call(self.dtr_model)
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 0 <= 3.133 else to node 4.
      node=1: go to node 2 if feature 0 <= 0.514 else to node 3.
           node=2 left node: scores = [[1.]]
@@ -80,6 +88,10 @@ node=0: go to node 1 if feature 0 <= 3.133 else to node 4.
 
         result = self.api_call(self.etc_model)
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 0 <= 5.364 else to node 2.
      node=1 left node: scores = [[0.882 0.088 0.029]]
 
@@ -91,6 +103,10 @@ node=0: go to node 1 if feature 0 <= 5.364 else to node 2.
 
         result = self.api_call(self.etr_model)
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 2 <= 2.289 else to node 2.
      node=1 left node: scores = [[0.]]
 
@@ -105,6 +121,10 @@ node=0: go to node 1 if feature 2 <= 2.289 else to node 2.
                  2: "Petal Length", 3: "Petal Width"}
         result = self.api_call(self.dtc_model, names=names)
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if Petal Width <= 0.8 else to node 2.
      node=1 left node: scores = [[1. 0. 0.]]
 
@@ -119,6 +139,10 @@ node=0: go to node 1 if Petal Width <= 0.8 else to node 2.
         result = self.api_call(self.dtc_model, precision=precision)
 
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
      node=1 left node: scores = [[1. 0. 0.]]
 
@@ -131,6 +155,10 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
     def test_normalize(self):
         result = self.api_call(self.dtc_model, normalize=True)
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
      node=1 left node: scores = [[1. 0. 0.]]
 
@@ -142,6 +170,10 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 
         result = self.api_call(self.dtc_model, normalize=False)
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
      node=1 left node: scores = [[37.  0.  0.]]
 
@@ -156,6 +188,10 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
         result = self.api_call(self.dtc_model, label_index=label_index)
 
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
      node=1 left node: score = 0.0
 
@@ -167,7 +203,7 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 
         label_index = 10
 
-        match = "is out of bounds on a decision tree with"
+        match = "is out of bounds on decision tree"
         message = "Expected NotImplementedError regarding no support"
 
         with pytest.raises(IndexError, match=match, message=message):
@@ -178,6 +214,10 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
         result = self.api_call(self.dtc_model, tab_size=tab_size)
 
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
 node=1 left node: scores = [[1. 0. 0.]]
 
@@ -191,6 +231,10 @@ node=4 left node: scores = [[0.    0.026 0.974]]
         result = self.api_call(self.dtc_model, tab_size=tab_size)
 
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
   node=1 left node: scores = [[1. 0. 0.]]
 
@@ -205,6 +249,10 @@ node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
         result = self.api_call(self.dtc_model, filepath_or_buffer=buffer)
 
         expected = """\
+
+
+Info for Decision Tree 0
+
 node=0: go to node 1 if feature 3 <= 0.8 else to node 2.
      node=1 left node: scores = [[1. 0. 0.]]
 

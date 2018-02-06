@@ -10,10 +10,10 @@ __all__ = ["get_tree_info", "get_decision_info", "get_tree_at"]
 get_tree_at = utils.get_tree_at
 
 
-def get_tree_info(estimator, normalize=True, precision=3, names=None,
+def get_tree_info(model, normalize=True, precision=3, names=None,
                   label_index=None, tab_size=5, filepath_or_buffer=None):
     """
-    Print out the structure of a decision tree.
+    Print out the structure of the tree(s) of a tree-based model.
 
     The print-out will consist of each node and either its leaf-node
     scores OR its decision threshold to determine which path it takes
@@ -21,8 +21,11 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
 
     Parameters
     ----------
-    estimator : sklearn.tree.tree.BaseDecisionTree
-        The decision tree that we are to analyze.
+    model : sklearn.ensemble.forest.BaseForest or
+            sklearn.tree.tree.BaseDecisionTree
+        The tree-based model that we are to analyze. Can be an individual
+        estimator (e.g. DecisionTreeClassifier) or an ensemble model
+        (e.g. RandomForestRegressor).
     normalize : bool, default True
         Whether to normalize the label scores at the leaves so that they
         fall into the range [0, 1].
@@ -53,101 +56,104 @@ def get_tree_info(estimator, normalize=True, precision=3, names=None,
 
     Raises
     ------
-    NotImplementedError : the estimator is not supported or has a prediction.
+    NotImplementedError : the model is not supported for extracting info.
     IndexError : the label index provided was out of bounds on the array of
                  output scores provided at each node.
-    NotFittedError : the estimator was not properly fitted yet.
+    NotFittedError : the model was not properly fitted yet.
     """
 
-    utils.check_model_type(estimator)
-    utils.check_is_fitted(estimator)
+    utils.check_model_type(model)
+    utils.check_is_fitted(model)
 
-    names = names or {}
-    tree = estimator.tree_
-
-    n_nodes = tree.node_count
-    children_left = tree.children_left
-    children_right = tree.children_right
-
-    features = tree.feature
-    thresholds = tree.threshold
-
-    node_depths = np.zeros(shape=n_nodes, dtype=np.int64)
-    is_leaves = np.zeros(shape=n_nodes, dtype=bool)
-
-    stack = [(0, -1)]
-
-    while len(stack) > 0:
-        node_id, parent_depth = stack.pop()
-        node_depths[node_id] = parent_depth + 1
-
-        # Check if we are at a leaf or not.
-        if children_left[node_id] != children_right[node_id]:
-            stack.append((children_left[node_id], parent_depth + 1))
-            stack.append((children_right[node_id], parent_depth + 1))
-        else:
-            is_leaves[node_id] = True
-
-    previous_leaf = False
-    previous_depth = -1
-
-    print_tab = utils.get_tab(size=tab_size)
     output = ""
+    names = names or {}
+    print_tab = utils.get_tab(size=tab_size)
+    estimators = utils.get_estimators(model)
 
-    for i in range(n_nodes):
-        node_depth = node_depths[i]
-        tabbing = node_depth * print_tab
+    for index, estimator in enumerate(estimators):
+        output += "\n\nInfo for Decision Tree {ind}\n\n".format(ind=index)
+        tree = estimator.tree_
 
-        if is_leaves[i]:
-            if previous_leaf:
-                if previous_depth > 0 and previous_depth > node_depth:
+        n_nodes = tree.node_count
+        children_left = tree.children_left
+        children_right = tree.children_right
+
+        features = tree.feature
+        thresholds = tree.threshold
+
+        node_depths = np.zeros(shape=n_nodes, dtype=np.int64)
+        is_leaves = np.zeros(shape=n_nodes, dtype=bool)
+
+        stack = [(0, -1)]
+
+        while len(stack) > 0:
+            node_id, parent_depth = stack.pop()
+            node_depths[node_id] = parent_depth + 1
+
+            # Check if we are at a leaf or not.
+            if children_left[node_id] != children_right[node_id]:
+                stack.append((children_left[node_id], parent_depth + 1))
+                stack.append((children_right[node_id], parent_depth + 1))
+            else:
+                is_leaves[node_id] = True
+
+        previous_leaf = False
+        previous_depth = -1
+
+        for i in range(n_nodes):
+            node_depth = node_depths[i]
+            tabbing = node_depth * print_tab
+
+            if is_leaves[i]:
+                if previous_leaf:
+                    if previous_depth > 0 and previous_depth > node_depth:
+                        output += "\n"  # Readability
+
+                probs = tree.value[i][:]
+
+                if normalize:
+                    probs = normalize_values(probs, norm="l1")
+
+                probs = utils.maybe_round(probs, precision=precision)
+
+                if label_index is not None:
+                    try:
+                        prob = probs[0][label_index]
+                        score = "score = {score}".format(score=prob)
+                    except IndexError:
+                        msg = ("Index {label_index} is out of bounds on "
+                               "decision tree {ind} with {n} possible outputs")
+                        prob_counts = probs.shape[1]
+
+                        raise IndexError(msg.format(n=prob_counts, ind=index,
+                                                    label_index=label_index))
+                else:
+                    score = "scores = {scores}".format(scores=probs)
+
+                leaf_info = "{tabbing}node={label} left node: {score}"
+                output += (leaf_info.format(tabbing=tabbing, label=i,
+                                            score=score) + "\n")
+
+                previous_depth = node_depth
+                previous_leaf = True
+            else:
+                if previous_leaf:
+                    previous_leaf = False
                     output += "\n"  # Readability
 
-            probs = tree.value[i][:]
+                feature = features[i]
+                threshold = thresholds[i]
+                cutoff = utils.maybe_round(threshold, precision=precision)
 
-            if normalize:
-                probs = normalize_values(probs, norm="l1")
+                default = "feature {name}".format(name=feature)
+                name = names.get(feature, default)
 
-            probs = utils.maybe_round(probs, precision=precision)
-
-            if label_index is not None:
-                try:
-                    prob = probs[0][label_index]
-                    score = "score = {score}".format(score=prob)
-                except IndexError:
-                    msg = ("Index {label_index} is out of bounds on a "
-                           "decision tree with {n} possible outputs")
-                    prob_counts = probs.shape[1]
-
-                    raise IndexError(msg.format(n=prob_counts,
-                                                label_index=label_index))
-            else:
-                score = "scores = {scores}".format(scores=probs)
-
-            leaf_info = "{tabbing}node={label} left node: {score}"
-            output += (leaf_info.format(tabbing=tabbing, label=i,
-                                        score=score) + "\n")
-
-            previous_depth = node_depth
-            previous_leaf = True
-        else:
-            if previous_leaf:
-                previous_leaf = False
-                output += "\n"  # Readability
-
-            feature = features[i]
-            threshold = thresholds[i]
-            cutoff = utils.maybe_round(threshold, precision=precision)
-
-            default = "feature {name}".format(name=feature)
-            name = names.get(feature, default)
-
-            node_info = ("{tabbing}node={label}: go to node {left} if "
-                         "{name} <= {cutoff} else to node {right}.")
-            output += (node_info.format(tabbing=tabbing, label=i,
-                                        left=children_left[i],
-                                        name=name, cutoff=cutoff,
-                                        right=children_right[i]) + "\n")
+                node_info = ("{tabbing}node={label}: go to node {left} if "
+                             "{name} <= {cutoff} else to node {right}.")
+                output += (node_info.format(tabbing=tabbing, label=i,
+                                            left=children_left[i],
+                                            name=name, cutoff=cutoff,
+                                            right=children_right[i]) + "\n")
 
     utils.write_to_buf(output, filepath_or_buffer)
     return output if filepath_or_buffer is None else None
